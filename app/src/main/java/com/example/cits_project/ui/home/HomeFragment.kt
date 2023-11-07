@@ -132,7 +132,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         this.naverMap = naverMap
         naverMap.locationSource = locationSource  // 위치 소스를 설정하여 위치 정보를 가져오도록 합니다.
 
-        naverMap.locationTrackingMode = LocationTrackingMode.Follow
+        naverMap.locationTrackingMode = LocationTrackingMode.Face
 
         // 여기에 추가적인 지도 설정 및 기능을 작성하세요...
 
@@ -174,8 +174,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             // UI 설정
             uiSettings.apply {
                 isLocationButtonEnabled = true // 현재 위치 활성화
-                isTiltGesturesEnabled = false // 틸트 비활성화
-//                isRotateGesturesEnabled = false // 회전 비활성
+                isTiltGesturesEnabled = true // 틸트 활성화
+                isRotateGesturesEnabled = true // 회전 활성
                 isCompassEnabled = false // 나침반비활성화
                 isZoomControlEnabled = true //줌 컨트롤바 활성화
             }

@@ -12,10 +12,20 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.example.cits_project.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:id="@+id/nav_finding_a_way"
+        android:name="com.example.cits_project.ui.finding_a_way.Finding_a_wayFragment"
+        android:label="@string/Finding_a_way"
+        tools:layout="@layout/fragment_finding_a_way" >
+        <action
+            android:id="@+id/action_nav_finding_a_way_to_nav_finding_a_way2"
+            app:destination="@id/nav_finding_a_way2" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_finding_a_way2"
+        android:name="com.example.cits_project.ui.finding_a_way.Finding_a_wayFragment2"
+        android:label="@string/Finding_a_way"
+        tools:layout="@layout/fragment_finding_a_way2" />
 
     <fragment
         android:id="@+id/nav_slideshow"

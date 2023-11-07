@@ -15,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cits_project.databinding.ActivityMainBinding
 import com.example.cits_project.ui.home.HomeFragment
+import com.example.cits_project.ui.finding_a_way.Finding_a_wayFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,7 +26,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super. onCreate(savedInstanceState)
 
         // 뷰 바인딩 초기화
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -42,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         // 앱 바 구성 초기화
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
+                R.id.nav_home, R.id.nav_finding_a_way, R.id.nav_slideshow
             ), drawerLayout
         )
 
