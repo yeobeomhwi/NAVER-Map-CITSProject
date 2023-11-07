@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.Geocoder
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,6 +40,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private lateinit var naverMap: NaverMap
     private lateinit var marker: Marker
     private lateinit var infoWindow : InfoWindow
+
     // 위치 권한 요청에 필요한 코드와 권한 목록 정의
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
@@ -163,7 +165,14 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 70.0, // 기울임 각도
                 0.0 // 베어링 각도
             )
-
+            //현재위치 좌표
+            naverMap.addOnLocationChangeListener { location ->
+                if (location != null) {
+                    Log.d("LocationInfo", "${location.latitude}, ${location.longitude}")
+                } else {
+                    Log.d("LocationInfo", "Location unavailable")
+                }
+            }
             // 카메라 적용
             moveCamera(CameraUpdate.toCameraPosition(cameraPosition))
 

@@ -21,8 +21,6 @@ import com.naver.maps.map.overlay.InfoWindow
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 
-// Finding_a_wayFragment2.kt
-
 class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentFindingAWay2Binding? = null
@@ -33,6 +31,7 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
     private lateinit var infoWindow: InfoWindow
 
     private var locationSource: FusedLocationSource? = null
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,13 +41,14 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
         _binding = FragmentFindingAWay2Binding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        // FusedLocationSource 초기화
+        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+
         val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as MapFragment
         mapFragment.getMapAsync(this)
 
         val startLocation = arguments?.getString("start_location")
         val endLocation = arguments?.getString("end_location")
-
-//        searchAddress(startLocation, endLocation)
 
         // startLocation과 endLocation을 사용하여 동작을 수행합니다.
         // 예를 들어, TextView에 출발지와 도착지 정보를 표시할 수 있습니다.
@@ -63,38 +63,61 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
 
-        // 출발지와 도착지 주소를 받아옵니다.
+        naverMap.locationSource = locationSource
+
+        naverMap.locationTrackingMode = LocationTrackingMode.Face
+
+
         val startLocation = arguments?.getString("start_location")
         val endLocation = arguments?.getString("end_location")
 
-        // 주소를 좌표로 변환하고, 해당 좌표에 마커를 생성하여 지도에 추가합니다.
         searchAddress(startLocation, endLocation)
+
+        naverMap.apply {
+            mapType = NaverMap.MapType.Navi
+
+            setLayerGroupEnabled(NaverMap.LAYER_GROUP_TRAFFIC, true)
+            setLayerGroupEnabled(NaverMap.LAYER_GROUP_BUILDING, true)
+            setLayerGroupEnabled(NaverMap.LAYER_GROUP_TRANSIT, true)
+
+            buildingHeight = 0.5f
+            symbolPerspectiveRatio = 1f
+
+            val cameraPosition = CameraPosition(
+                LatLng(0.0, 0.0),
+                18.0,
+                70.0,
+                0.0
+            )
+
+            uiSettings.apply {
+                isLocationButtonEnabled = true
+                isTiltGesturesEnabled = true
+                isRotateGesturesEnabled = true
+                isCompassEnabled = false
+                isZoomControlEnabled = true
+            }
+        }
     }
 
     fun searchAddress(startAddress: String?, endAddress: String?) {
         val geocoder = Geocoder(requireContext())
 
-        // 출발지 주소를 좌표로 변환하고 결과를 리스트에 저장합니다.
         val startList: List<Address>? = startAddress?.let { geocoder.getFromLocationName(it, 1) }
-
-        // 도착지 주소를 좌표로 변환하고 결과를 리스트에 저장합니다.
         val endList: List<Address>? = endAddress?.let { geocoder.getFromLocationName(it, 1) }
 
         if (startList != null && startList.isNotEmpty() && endList != null && endList.isNotEmpty()) {
             val startLocation = LatLng(startList[0].latitude, startList[0].longitude)
             val endLocation = LatLng(endList[0].latitude, endList[0].longitude)
 
-            // 출발지와 도착지의 중간 지점을 계산합니다.
             val middleLocation = LatLng(
                 (startLocation.latitude + endLocation.latitude) / 2,
                 (startLocation.longitude + endLocation.longitude) / 2
             )
 
-            // 출발지와 도착지의 중간 지점으로 카메라를 이동시킵니다.
-            val cameraUpdate = CameraUpdate.fitBounds(LatLngBounds.from(startLocation, endLocation), 100) // 100은 여백입니다.
+            val cameraUpdate = CameraUpdate.fitBounds(LatLngBounds.from(startLocation, endLocation), 100)
             naverMap.moveCamera(cameraUpdate)
 
-            // 출발지와 도착지의 마커를 생성하여 지도에 추가합니다.
             val startMarker = Marker()
             startMarker.position = startLocation
             startMarker.map = naverMap
@@ -102,7 +125,17 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
             val endMarker = Marker()
             endMarker.position = endLocation
             endMarker.map = naverMap
+
+            // 출발지와 도착지의 좌표를 로그로 출력합니다.
+            val startLatLng = "출발지 좌표: ${startLocation.latitude}, ${startLocation.longitude}"
+            val endLatLng = "도착지 좌표: ${endLocation.latitude}, ${endLocation.longitude}"
+            println(startLatLng)
+            println(endLatLng)
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
