@@ -166,11 +166,19 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 0.0 // 베어링 각도
             )
             //현재위치 좌표
+//            naverMap.addOnLocationChangeListener { location ->
+//                if (location != null) {
+//                    Log.d("LocationInfo", "${location.latitude}, ${location.longitude}")
+//                } else {
+//                    Log.d("LocationInfo", "Location unavailable")
+//                }
+//            }
             naverMap.addOnLocationChangeListener { location ->
                 if (location != null) {
-                    Log.d("LocationInfo", "${location.latitude}, ${location.longitude}")
+                    val currentLatLng = "현재위치 좌표: ${location.latitude}, ${location.longitude}"
+                    println(currentLatLng)
                 } else {
-                    Log.d("LocationInfo", "Location unavailable")
+                    println("현재위치 좌표: Location unavailable")
                 }
             }
             // 카메라 적용
