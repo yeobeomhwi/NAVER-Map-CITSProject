@@ -1,17 +1,17 @@
-package com.example.cits_project
+package com.example.cits_project.ui.finding_a_way
 
 data class ResultPath(
     val route : Result_trackoption,
     val message : String,
-    val code: Int
+    val code : Int
 )
 data class Result_trackoption(
-    val traoptimal: List<Result_path>
+    val traoptimal : List<Result_path>
 )
 data class Result_path(
     val summary : Result_distance,
     val path : List<List<Double>>
 )
 data class Result_distance(
-    val distance: Int
+    val distance : Int
 )

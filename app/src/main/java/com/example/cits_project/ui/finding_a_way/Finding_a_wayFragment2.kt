@@ -1,284 +1,266 @@
-package com.example.cits_project.ui.finding_a_way
+    package com.example.cits_project.ui.finding_a_way
 
+    import android.graphics.Color
+    import android.location.Address
+    import android.location.Geocoder
+    import android.os.Bundle
+    import android.util.Log
+    import android.view.LayoutInflater
+    import android.view.View
+    import android.view.ViewGroup
+    import android.widget.TextView
+    import android.widget.Toast
+    import androidx.fragment.app.Fragment
+    import com.example.cits_project.R
+    import com.example.cits_project.databinding.FragmentFindingAWay2Binding
+    import com.naver.maps.geometry.LatLng
+    import com.naver.maps.geometry.LatLngBounds
+    import com.naver.maps.map.CameraAnimation
+    import com.naver.maps.map.CameraPosition
+    import com.naver.maps.map.CameraUpdate
+    import com.naver.maps.map.MapFragment
+    import com.naver.maps.map.NaverMap
+    import com.naver.maps.map.OnMapReadyCallback
+    import com.naver.maps.map.overlay.Marker
+    import com.naver.maps.map.overlay.PathOverlay
+    import com.naver.maps.map.util.FusedLocationSource
+    import retrofit2.Call
+    import retrofit2.Callback
+    import retrofit2.Response
+    import retrofit2.Retrofit
+    import retrofit2.converter.gson.GsonConverterFactory
 
-import android.graphics.Color
-import android.location.Address
-import android.location.Geocoder
-import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
-import androidx.fragment.app.Fragment
-import com.example.cits_project.NaverAPI
-import com.example.cits_project.R
-import com.example.cits_project.ResultPath
-import com.example.cits_project.databinding.FragmentFindingAWay2Binding
-import com.naver.maps.geometry.LatLng
-import com.naver.maps.geometry.LatLngBounds
-import com.naver.maps.map.CameraAnimation
-import com.naver.maps.map.CameraPosition
-import com.naver.maps.map.CameraUpdate
-import com.naver.maps.map.LocationTrackingMode
-import com.naver.maps.map.MapFragment
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.overlay.InfoWindow
-import com.naver.maps.map.overlay.Marker
-import com.naver.maps.map.overlay.PathOverlay
-import com.naver.maps.map.util.FusedLocationSource
-import retrofit2.Callback
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.Call
-import retrofit2.Response
+    class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
 
+        // View binding을 위한 변수
+        private var _binding: FragmentFindingAWay2Binding? = null
+        private val binding get() = _binding!!
 
-class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
+        // 경로 좌표를 담을 리스트
+        private var path_cords_list: List<Result_path> = emptyList()
 
-    // 뷰 바인딩을 위한 변수
-    private var _binding: FragmentFindingAWay2Binding? = null
-    private val binding get() = _binding!!
+        // NaverMap 객체
+        private lateinit var naverMap: NaverMap
 
-    // NaverMap 객체, 마커, 정보 윈도우를 나타내는 변수들
-    private lateinit var naverMap: NaverMap
-    private lateinit var marker: Marker
-    private lateinit var infoWindow: InfoWindow
+        // 위치 정보를 가져오기 위한 FusedLocationSource
+        private var locationSource: FusedLocationSource? = null
+        private val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
-    // 위치 정보 소스를 제공하는 변수
-    private var locationSource: FusedLocationSource? = null
+        // Naver Map 서비스를 위한 API 키
+        val APIKEY_ID = "thps5vg7jo"
+        val APIKEY = "h8DPvpdvUGhz3RkKwCTeo3aNmYOBC55Fw31sqNrT"
 
-    // 위치 권한 요청 시 사용할 코드
-    private val LOCATION_PERMISSION_REQUEST_CODE = 1000
+        // Retrofit을 초기화하고 API 인터페이스를 생성
+        val retrofit = Retrofit.Builder().
+        baseUrl("https://naveropenapi.apigw.ntruss.com/map-direction/").
+        addConverterFactory(GsonConverterFactory.create()).
+        build()
+        val api = retrofit.create(NaverAPI::class.java)
 
-    val APIKEY_ID = "thps5vg7jo"
-    val APIKEY = "h8DPvpdvUGhz3RkKwCTeo3aNmYOBC55Fw31sqNrT"
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            // View binding 초기화
+            _binding = FragmentFindingAWay2Binding.inflate(inflater, container, false)
+            val root: View = binding.root
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // 뷰 바인딩 초기화
-        _binding = FragmentFindingAWay2Binding.inflate(inflater, container, false)
-        val root: View = binding.root
+            // 위치 권한 요청을 위한 FusedLocationSource 초기화
+            locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
 
-        // 위치 정보 소스 초기화 및 권한 요청 코드 설정
-        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+            // MapFragment를 초기화하고 지도를 로드하는 비동기 작업을 시작
+            val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as MapFragment
+            mapFragment.getMapAsync(this)
 
-        // MapFragment를 찾아와서 비동기적으로 지도를 준비하도록 설정
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as MapFragment
-        mapFragment.getMapAsync(this)
+            return root
+        }
 
-        return root
-    }
+        override fun onMapReady(naverMap: NaverMap) {
+            // NaverMap 객체를 초기화하고 현재 위치를 가져올 수 있도록 설정
+            this.naverMap = naverMap
+            naverMap.locationSource = locationSource
 
+            // 시작 지점과 도착 지점을 가져오고 주소를 검색
+            val startLocation = arguments?.getString("start_location")
+            val endLocation = arguments?.getString("end_location")
+            searchAddress(startLocation, endLocation, binding.textView)
 
-    override fun onMapReady(naverMap: NaverMap) {
-        // onMapReady 콜백 함수에서 naverMap을 받아와서 멤버 변수로 설정합니다.
-        this.naverMap = naverMap
+            // NaverMap 설정
+            naverMap.apply {
+                mapType = NaverMap.MapType.Navi // 지도 유형 설정 (Navi: 네비게이션 모드)
+                setLayerGroupEnabled(NaverMap.LAYER_GROUP_TRAFFIC, true) // 교통 정보 레이어
+                setLayerGroupEnabled(NaverMap.LAYER_GROUP_BUILDING, true) // 건물 정보 레이어
+                setLayerGroupEnabled(NaverMap.LAYER_GROUP_TRANSIT, true) // 대중교통 정보 레이어
+                buildingHeight = 0.5f   // 건물 높이 설정
+                symbolPerspectiveRatio = 1f   // 심볼 원근 비율 설정
 
-        // 위치 정보 제공자를 설정합니다.
-        naverMap.locationSource = locationSource
+                // 현재 위치가 변경될 때 실행되는 리스너 설정
+                naverMap.addOnLocationChangeListener { location ->
+                    if (location != null) {
+                        val currentLatLng = "현재위치 좌표: ${location.latitude}, ${location.longitude}"
+                        println(currentLatLng)
+                    } else {
+                        println("현재위치 좌표: Location unavailable")
+                    }
+                }
 
-        // 주석 처리된 부분: 위치 추적 모드를 설정하는 코드입니다.
-        // naverMap.locationTrackingMode = LocationTrackingMode.Face
+                // 초기 카메라 위치 설정
+                val cameraPosition = CameraPosition(
+                    LatLng(0.0, 0.0),
+                    18.0,
+                    70.0,
+                    0.0
+                )
 
-        // 전달받은 출발지와 도착지 주소를 가져옵니다.
-        val startLocation = arguments?.getString("start_location")
-        val endLocation = arguments?.getString("end_location")
-
-        // naverMap이 초기화된 후에 searchAddress를 호출하여 주소를 검색하고 표시합니다.
-        searchAddress(startLocation, endLocation, binding.textView)
-
-        // 아래부터는 naverMap에 대한 설정입니다.
-        naverMap.apply {
-            // 지도 유형을 네비게이션 모드로 설정합니다.
-            mapType = NaverMap.MapType.Navi
-
-            // 교통 정보, 건물 정보, 대중교통 정보 레이어를 활성화합니다.
-            setLayerGroupEnabled(NaverMap.LAYER_GROUP_TRAFFIC, true)
-            setLayerGroupEnabled(NaverMap.LAYER_GROUP_BUILDING, true)
-            setLayerGroupEnabled(NaverMap.LAYER_GROUP_TRANSIT, true)
-
-            // 건물의 높이를 설정합니다. (0.5배)
-            buildingHeight = 0.5f
-
-            // 심볼의 투시 비율을 설정합니다. (1배)
-            symbolPerspectiveRatio = 1f
-
-            // 현재 위치 좌표
-            naverMap.addOnLocationChangeListener { location ->
-                if (location != null) {
-                    val currentLatLng = "현재위치 좌표: ${location.latitude}, ${location.longitude}"
-                    println(currentLatLng)
-                } else {
-                    println("현재위치 좌표: Location unavailable")
+                // UI 설정
+                uiSettings.apply {
+                    isLocationButtonEnabled = true // 현재 위치 버튼
+                    isTiltGesturesEnabled = true  // 지도를 기울이는 제스처
+                    isRotateGesturesEnabled = true// 지도를 회전하는 제스처
+                    isCompassEnabled = false  // 나침반
+                    isZoomControlEnabled = true // 줌 컨트롤
                 }
             }
-
-
-            // 초기 카메라 위치를 설정합니다.
-            val cameraPosition = CameraPosition(
-                LatLng(0.0, 0.0), // 초기 위치는 (0,0) 위도와 경도입니다.
-                18.0, // 줌 레벨은 18로 설정합니다.
-                70.0, // 기울임 각도를 70도로 설정합니다.
-                0.0 // 방향은 0도로 설정합니다.
-            )
-
-            // UI 설정을 적용합니다.
-            uiSettings.apply {
-                // 현재 위치 버튼을 활성화합니다.
-                isLocationButtonEnabled = true
-
-                // 기울임 제스처를 활성화합니다.
-                isTiltGesturesEnabled = true
-
-                // 회전 제스처를 활성화합니다.
-                isRotateGesturesEnabled = true
-
-                // 나침반을 비활성화합니다.
-                isCompassEnabled = false
-
-                // 줌 컨트롤을 활성화합니다.
-                isZoomControlEnabled = true
-            }
         }
-    }
 
+        fun removeCountryFromAddress(address: String): String {
+            // 주소를 공백을 기준으로 나눕니다.
+            val parts = address.split(" ")
 
-    // 주소에서 "대한민국" 부분을 제거하는 함수입니다.
-    fun removeCountryFromAddress(address: String): String {
-        // 주소를 공백을 기준으로 나눠서 각 부분을 리스트로 만듭니다.
-        val parts = address.split(" ")
+            // "대한민국"을 필터링하여 리스트에서 제거합니다.
+            val filteredParts = parts.filter { it != "대한민국" }
 
-        // "대한민국"을 제외한 나머지 부분을 필터링합니다.
-        val filteredParts = parts.filter { it != "대한민국" }
+            // 필터링된 부분들을 다시 공백을 이용하여 문자열로 합칩니다.
+            return filteredParts.joinToString(" ")
+        }
 
-        // 필터링된 부분들을 다시 공백으로 연결하여 하나의 문자열로 만듭니다.
-        return filteredParts.joinToString(" ")
-    }
+        // ...
 
-    // 수정된 searchAddress 함수
-    fun searchAddress(startAddress: String?, endAddress: String?, textView: TextView?) {
-        // Geocoder 객체를 초기화하여 주소와 좌표를 변환할 수 있도록 합니다.
-        val geocoder = Geocoder(requireContext())
+        fun searchAddress(startAddress: String?, endAddress: String?, textView: TextView?) {
+            // Geocoder 객체를 생성합니다.
+            val geocoder = Geocoder(requireContext())
 
-        // 시작 주소와 끝 주소에 대한 Address 객체 목록을 가져옵니다.
-        val startList: List<Address>? = startAddress?.let { geocoder.getFromLocationName(it, 1) }
-        val endList: List<Address>? = endAddress?.let { geocoder.getFromLocationName(it, 1) }
+            // 시작 주소와 끝 주소를 기반으로 위치 정보를 가져옵니다.
+            val startList: List<Address>? = startAddress?.let { geocoder.getFromLocationName(it, 1) }
+            val endList: List<Address>? = endAddress?.let { geocoder.getFromLocationName(it, 1) }
 
-        // 시작 주소와 끝 주소가 모두 유효한 경우 실행합니다.
-        if (startList != null && startList.isNotEmpty() && endList != null && endList.isNotEmpty()) {
-            // Address 객체에서 위도와 경도를 추출합니다.
-            val startLocation = LatLng(startList[0].latitude, startList[0].longitude)
-            val endLocation = LatLng(endList[0].latitude, endList[0].longitude)
+            // 만약 시작 주소와 끝 주소 모두 유효한 경우
+            if (startList != null && startList.isNotEmpty() && endList != null && endList.isNotEmpty()) {
+                // 시작 위치와 끝 위치의 좌표를 LatLng 객체로 생성합니다.
+                val startLocation = LatLng(startList[0].latitude, startList[0].longitude)
+                val endLocation = LatLng(endList[0].latitude, endList[0].longitude)
 
-            // 주소에서 국가 이름을 제거합니다 (있는 경우).
-            val startFullAddress = removeCountryFromAddress(startList[0].getAddressLine(0))
-            val endFullAddress = removeCountryFromAddress(endList[0].getAddressLine(0))
+                // 주소에서 "대한민국"을 제거한 전체 주소를 가져옵니다.
+                val startFullAddress = removeCountryFromAddress(startList[0].getAddressLine(0))
+                val endFullAddress = removeCountryFromAddress(endList[0].getAddressLine(0))
 
-            // 제공된 TextView에 시작 주소와 끝 주소를 표시합니다.
-            textView?.let {
-                val message = "출발지: $startFullAddress\n도착지: $endFullAddress"
-                it.text = message
-            }
+                // TextView에 출발지와 도착지 정보를 설정합니다.
+                textView?.let {
+                    val message = "출발지: $startFullAddress\n도착지: $endFullAddress"
+                    it.text = message
+                }
 
-            // 시작과 끝 위치의 중간 지점을 계산합니다.
-            val middleLocation = LatLng(
-                (startLocation.latitude + endLocation.latitude) / 2,
-                (startLocation.longitude + endLocation.longitude) / 2
-            )
+                // 출발지와 도착지를 포함하는 경계를 계산하여 지도를 이동합니다.
+                val cameraUpdate = CameraUpdate.fitBounds(LatLngBounds.from(startLocation, endLocation), 100)
+                naverMap.moveCamera(cameraUpdate)
 
-            // 지도를 시작과 끝 위치를 포함하는 영역으로 줌 인 및 중앙 정렬합니다.
-            val cameraUpdate =
-                CameraUpdate.fitBounds(LatLngBounds.from(startLocation, endLocation), 100)
-            naverMap.moveCamera(cameraUpdate)
+                // 출발지와 도착지에 마커를 추가합니다.
+                val startMarker = Marker()
+                startMarker.position = startLocation
+                startMarker.map = naverMap
 
-            // 지도에 시작 위치와 끝 위치에 대한 마커를 추가합니다.
-            val startMarker = Marker()
-            startMarker.position = startLocation
-            startMarker.map = naverMap
+                val endMarker = Marker()
+                endMarker.position = endLocation
+                endMarker.map = naverMap
 
-            val endMarker = Marker()
-            endMarker.position = endLocation
-            endMarker.map = naverMap
+                // 출발지와 도착지의 좌표를 출력합니다.
+                val startLatLng = "출발지 좌표: ${startLocation.latitude}, ${startLocation.longitude}"
+                val endLatLng = "도착지 좌표: ${endLocation.latitude}, ${endLocation.longitude}"
+                println(startLatLng)
+                println(endLatLng)
 
-            // 시작 및 끝 위치의 위도와 경도를 출력합니다.
-            val startLatLng = "출발지 좌표: ${startLocation.latitude}, ${startLocation.longitude}"
-            val endLatLng = "도착지 좌표: ${endLocation.latitude}, ${endLocation.longitude}"
-            println(startLatLng)
-            println(endLatLng)
+                // 경로 정보를 요청합니다.
+                val callgetPath = api.getPath(
+                    APIKEY_ID,
+                    APIKEY,
+                    "${startLocation.longitude}, ${startLocation.latitude}",
+                    "${endLocation.longitude}, ${endLocation.latitude}","traoptimal" //실시간 최적은 되는데 실시간 빠른길이 안댐
+                )
 
-            // Naver Maps API로 HTTP 요청을 만들기 위해 Retrofit을 설정합니다.
-            val retrofit = Retrofit.Builder()
-                .baseUrl("https://naveropenapi.apigw.ntruss.com/map-direction/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
+                callgetPath.enqueue(object : Callback<ResultPath> {
+                    override fun onResponse(
+                        call: Call<ResultPath>,
+                        response: Response<ResultPath>
+                    ){
+                        if (response.isSuccessful){
+                            val resultPath = response.body()
+                            // 로그로 응답 내용을 출력합니다.
+                            Log.d("ServerResponse1", "Response: ${resultPath?.toString()}")
+                            Log.d("ServerResponse1","Response: ${response?.isSuccessful()}")
 
-            val api = retrofit.create(NaverAPI::class.java)
+                            // 1. 응답에서 경로 정보를 추출합니다.
+                            val traoptimal = resultPath?.route?.traoptimal
 
-            // 시작 위치와 끝 위치 사이의 경로를 얻기 위한 요청을 만듭니다.
-            val callgetPath = api.getPath(
-                APIKEY_ID,
-                APIKEY,
-                "${startLocation.latitude}, ${startLocation.longitude}",
-                "${endLocation.latitude}, ${endLocation.longitude}"
-            )
+                            if (traoptimal != null) {
+                                path_cords_list = traoptimal
 
-            callgetPath.enqueue(object : Callback<ResultPath> {
-                override fun onResponse(call: Call<ResultPath>, response: Response<ResultPath>) {
-                    // API 응답을 처리합니다.
+                                // 2. PathOverlay를 초기화합니다.
+                                val path = PathOverlay()
 
-                    val responseBody = response.body()
-                    if (responseBody != null) {
-                        Log.d("API_RESPONSE", responseBody.toString())
-                    } else {
-                        Log.d("API_RESPONSE", "Response body is null")
-                    }
-                    val path_cords_list = response.body()?.route?.traoptimal
+                                // 3. 경로를 표현할 좌표들을 담을 리스트를 생성합니다.
+                                val path_container: MutableList<LatLng>? = mutableListOf()
 
-                    if (path_cords_list != null) {
-                        val path = PathOverlay()
-                        val path_container: MutableList<LatLng>? = mutableListOf(LatLng(0.1, 0.1))
-                        for (path_cords in path_cords_list) {
-                            for (path_cords_xy in path_cords.path) {
-                                path_container?.add(LatLng(path_cords_xy[1], path_cords_xy[0]))
+                                // 4. 경로 정보를 순회합니다.
+                                for (path_cords in path_cords_list!!) {
+                                    // 각 경로의 좌표 정보를 순회합니다.
+                                    for (path_cords_xy in path_cords?.path!!) {
+                                        // 경로 좌표를 LatLng 객체로 변환하고 리스트에 추가합니다.
+                                        path_container?.add(LatLng(path_cords_xy[1], path_cords_xy[0]))
+                                    }
+                                }
+
+                                // 5. PathOverlay에 좌표 정보를 설정합니다.
+                                path.coords = path_container ?: emptyList()
+
+                                // 6. 경로의 색상을 검은색 테두리를 노란색으로 지정합니다.
+                                path.color = Color.BLACK
+                                path.outlineColor = Color.YELLOW
+                                path.width = 20
+
+                                // 7. 지도에 경로를 추가하여 표시합니다.
+                                path.map = naverMap
+
+                                // 8. 경로 정보가 있을 경우, 시작 위치로 지도를 이동시킵니다.
+                                if (path.coords.isNotEmpty()) {
+                                    // 경로의 첫 번째 좌표로 카메라 이동을 설정합니다.
+                                    val cameraUpdate = CameraUpdate.scrollTo(path.coords[0]!!)
+                                        .animate(CameraAnimation.Fly, 3000)
+
+                                    // 카메라 이동을 적용합니다.
+                                    naverMap.moveCamera(cameraUpdate)
+
+                                    // 안내 메시지를 표시합니다.
+                                    Toast.makeText(requireContext(), "경로 안내가 시작됩니다.", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                // traoptimal이 null일 경우 처리
+                                Log.d("ServerResponse3", "traoptimal is null")
+                                Log.d("ServerResponse3","Response: ${response?.body()}")
                             }
                         }
-                        path.coords = path_container?.drop(1)!!
-                        path.color = Color.RED
-                        path.map = naverMap
-
-                        if (path.coords != null) {
-                            val cameraUpdate = CameraUpdate.scrollTo(path.coords[0]!!)
-                                .animate(CameraAnimation.Fly, 3000)
-                            naverMap.moveCamera(cameraUpdate)
-
-                            // 내비게이션이 시작됐음을 나타내는 토스트 메시지를 표시합니다.
-                            Toast.makeText(
-                                requireContext(),
-                                "경로 안내가 시작됩니다.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    } else {
-                        // path_cords_list가 null일 때 처리하는 코드 추가
                     }
-                }
 
-                override fun onFailure(call: Call<ResultPath>, t: Throwable) {
-                    // 요청이 실패한 경우 처리합니다.
-                    Log.e("API_ERROR", "API 호출 실패: ${t.message}", t)
-                }
-            })
+                    override fun onFailure(call: Call<ResultPath>, t: Throwable) {
+                        // 에러 처리
+                        Log.e("ServerResponse4", "Error: ${t.message}")
+                    }
+                })
+            }
+        }
+
+        override fun onDestroyView() {
+            super.onDestroyView()
+            _binding = null
         }
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-}
