@@ -46,6 +46,9 @@
         private var locationSource: FusedLocationSource? = null
         private val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
+        // 속력을 표시할 TextView
+        private lateinit var speedTextView: TextView
+
         // Naver Map 서비스를 위한 API 키
         val APIKEY_ID = "thps5vg7jo"
         val APIKEY = "h8DPvpdvUGhz3RkKwCTeo3aNmYOBC55Fw31sqNrT"
@@ -73,8 +76,18 @@
             val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as MapFragment
             mapFragment.getMapAsync(this)
 
+            // speedTextView를 초기화합니다.
+            speedTextView = binding.speedTextView
+
             return root
         }
+
+        // 속력 정보를 업데이트하는 함수
+        private fun updateSpeed(speed: Float) {
+            val speedInt = speed.toInt() // 속력을 정수로 변환
+            speedTextView.text = "${speed}"
+        }
+
 
         override fun onMapReady(naverMap: NaverMap) {
             // NaverMap 객체를 초기화하고 현재 위치를 가져올 수 있도록 설정
@@ -122,6 +135,20 @@
                     isZoomControlEnabled = true // 줌 컨트롤
                 }
             }
+
+            // 현재 위치가 변경될 때 실행되는 리스너 설정
+            naverMap.addOnLocationChangeListener { location ->
+                if (location != null) {
+                    val currentLatLng = "현재위치 좌표: ${location.latitude}, ${location.longitude}"
+                    println(currentLatLng)
+
+                    // 현재 속력을 업데이트합니다.
+                    updateSpeed(location.speed)
+                } else {
+                    println("현재위치 좌표: Location unavailable")
+                }
+            }
+
         }
 
         fun removeCountryFromAddress(address: String): String {
