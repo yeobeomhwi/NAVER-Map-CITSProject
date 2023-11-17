@@ -1,5 +1,8 @@
 package com.example.cits_project.ui.finding_a_way
 
+import Finding_a_wayViewModel
+import SearchHistoryAdapter
+import SearchHistoryItem
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.example.cits_project.R
 import com.example.cits_project.databinding.FragmentFindingAWayBinding
 
@@ -41,11 +45,18 @@ class Finding_a_wayFragment : Fragment() {
         val btnStartClear = root.findViewById<ImageButton>(R.id.start_clear_button)
         val btnEndClear = root.findViewById<ImageButton>(R.id.end_clear_button)
         val btnChange = root.findViewById<ImageButton>(R.id.Change_button)
+        // RecyclerView의 ID를 수정한 부분
+        val searchHistoryRecyclerView = root.findViewById<RecyclerView>(R.id.search_history)
+
 
         btnFindRoute.setOnClickListener {
             // EditText에서 텍스트를 가져옵니다.
             val startLocation = etStartLocation.text.toString()
             val endLocation = etEndLocation.text.toString()
+
+            // 검색 기록을 추가합니다.
+            finding_a_wayViewModel.addSearchHistoryItem(SearchHistoryItem(startLocation, endLocation))
+
 
             // 데이터를 다른 프래그먼트로 전달하기 위한 Bundle을 생성합니다.
             val bundle = Bundle()
@@ -77,6 +88,13 @@ class Finding_a_wayFragment : Fragment() {
             etStartLocation.setText(currentEndLocation)
             etEndLocation.setText(currentStartLocation)
         }
+
+        // 검색 기록을 관찰하여 업데이트될 때마다 리사이클러뷰를 갱신합니다.
+        finding_a_wayViewModel.searchHistory.observe(viewLifecycleOwner, { searchHistory ->
+            // 리사이클러뷰 어댑터에 검색 기록을 전달하여 갱신합니다.
+            val adapter = SearchHistoryAdapter(searchHistory)
+            binding.SearchHistory.adapter = adapter
+        })
 
         return root
     }

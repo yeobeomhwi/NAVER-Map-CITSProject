@@ -11,15 +11,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginRight="10dp"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="vertical">
 
             <ImageButton
                 android:id="@+id/Change_button"
@@ -31,15 +31,15 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
                 android:layout_marginBottom="20dp"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <EditText
                     android:id="@+id/et_start_location"
@@ -47,8 +47,8 @@
                     android:layout_height="48dp"
                     android:background="@drawable/search_bar_finding_a_way"
                     android:hint="  출발지"
-                    android:paddingLeft="10dp"
-                    android:maxLines="1"/>
+                    android:maxLines="1"
+                    android:paddingLeft="10dp" />
 
                 <ImageButton
                     android:id="@+id/start_clear_button"
@@ -61,8 +61,8 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <EditText
                     android:id="@+id/et_end_location"
@@ -70,8 +70,8 @@
                     android:layout_height="48dp"
                     android:background="@drawable/search_bar_finding_a_way"
                     android:hint="  도착지"
-                    android:paddingLeft="10dp"
-                    android:maxLines="1"/>
+                    android:maxLines="1"
+                    android:paddingLeft="10dp" />
 
                 <ImageButton
                     android:id="@+id/end_clear_button"
@@ -86,16 +86,22 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:layout_gravity="center">
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btn_find_route"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:backgroundTint="#85888D"
+            android:gravity="center"
             android:text="길 찾기" />
     </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@id/search_history"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </LinearLayout>

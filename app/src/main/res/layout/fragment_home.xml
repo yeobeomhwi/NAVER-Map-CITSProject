@@ -1,59 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-    <!-- Map Fragment -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map_fragment"
+    <!-- 검색창과 지도를 감싸는 LinearLayout -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.naver.maps.map.MapFragment" />
+        android:orientation="vertical">
 
-<!--    검색창-->
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginTop="100dp"
-        android:padding="14dp"
-        android:background="@drawable/search_bar_background"
-        tools:ignore="MissingConstraints">
-
-        <EditText
-            android:id="@+id/search_edit_text"
+        <!-- 검색창 -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_weight="1"
-            android:hint="주소를 입력하시오."
-            android:layout_marginStart="20dp"
-            android:minHeight="30dp"
-            android:textSize="14sp"
-            android:background="@android:color/transparent"
-            android:textColorHint="#808080"
-            android:textColor="#000000"
-            android:imeOptions="actionSearch"
-            />
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/search_bar_background"
+            android:padding="14dp">
 
+            <EditText
+                android:id="@+id/search_edit_text"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="주소를 입력하시오."
+                android:imeOptions="actionSearch"
+                android:minHeight="30dp"
+                android:textColor="#000000"
+                android:textColorHint="#808080"
+                android:textSize="14sp" />
 
-        <ImageButton
-            android:id="@+id/search_button"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/search_48"
-            android:layout_gravity="center_vertical"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
-            android:layout_marginStart="20dp"
-            android:background="@android:color/transparent" />
+            <ImageButton
+                android:id="@+id/search_button"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="20dp"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/search_48" />
+
+        </LinearLayout>
+
+        <!-- 지도 -->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map_fragment"
+            android:name="com.naver.maps.map.MapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
     </LinearLayout>
 
+    <!-- 다른 View 또는 TextView 등을 추가할 수 있습니다 -->
     <TextView
         android:id="@+id/text_home"
         android:layout_width="match_parent"
@@ -67,4 +72,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
