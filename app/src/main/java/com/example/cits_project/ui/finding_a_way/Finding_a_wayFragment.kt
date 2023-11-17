@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation.findNavController
@@ -37,8 +38,10 @@ class Finding_a_wayFragment : Fragment() {
         val btnFindRoute = root.findViewById<Button>(R.id.btn_find_route)
         val etStartLocation = root.findViewById<EditText>(R.id.et_start_location)
         val etEndLocation = root.findViewById<EditText>(R.id.et_end_location)
+        val btnStartClear = root.findViewById<ImageButton>(R.id.start_clear_button)
+        val btnEndClear = root.findViewById<ImageButton>(R.id.end_clear_button)
+        val btnChange = root.findViewById<ImageButton>(R.id.Change_button)
 
-        // 버튼에 클릭 리스너를 설정합니다.
         btnFindRoute.setOnClickListener {
             // EditText에서 텍스트를 가져옵니다.
             val startLocation = etStartLocation.text.toString()
@@ -53,6 +56,28 @@ class Finding_a_wayFragment : Fragment() {
             val navController = findNavController()
             navController.navigate(R.id.action_nav_finding_a_way_to_nav_finding_a_way2, bundle)
         }
+
+        btnStartClear.setOnClickListener{
+            //출발지 내용 삭제
+            etStartLocation.text.clear()
+        }
+
+        btnEndClear.setOnClickListener {
+            //도착지 내용삭제
+            etEndLocation.text.clear()
+        }
+
+        btnChange.setOnClickListener {
+            //출발지 도착지 내용 교환
+            // 현재의 출발지와 도착지를 가져옵니다.
+            val currentStartLocation = etStartLocation.text.toString()
+            val currentEndLocation = etEndLocation.text.toString()
+
+            // 출발지와 도착지를 교환하여 EditText에 설정합니다.
+            etStartLocation.setText(currentEndLocation)
+            etEndLocation.setText(currentStartLocation)
+        }
+
         return root
     }
 

@@ -216,6 +216,19 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+
+    fun removeCountryFromAddress(address: String): String {
+        // 주소를 공백을 기준으로 나눕니다.
+        val parts = address.split(" ")
+
+        // "대한민국"을 필터링하여 리스트에서 제거합니다.
+        val filteredParts = parts.filter { it != "대한민국" }
+
+        // 필터링된 부분들을 다시 공백을 이용하여 문자열로 합칩니다.
+        return filteredParts.joinToString(" ")
+
+    }
+
     // 주소 검색 함수
     fun searchAddress(address: String) {
 
@@ -232,8 +245,17 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
             // 결과 리스트가 비어있지 않은지 확인합니다.
             if (list.isNotEmpty()) {
+
+                // 전체 검색 결과를 로그로 출력합니다.
+                for (i in list.indices) {
+                    Log.d("Geocoder", "결과 $i: ${list[i].getAddressLine(0)}")
+                }
+
+
                 // 주소를 좌표로 변환한 결과 리스트에서 첫 번째 항목을 가져와서 위치로 설정합니다.
                 val location = LatLng(list[0].latitude, list[0].longitude)
+
+                val FullAddress = removeCountryFromAddress(list[0].getAddressLine(0))
 
                 // 마커의 위치를 변환된 좌표로 설정합니다.
                 marker.position = location
@@ -242,7 +264,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 infoWindow.adapter = object : InfoWindow.DefaultTextAdapter(requireContext()) {
                     override fun getText(infoWindow: InfoWindow): CharSequence {
                         // 마커를 클릭했을 때 표시할 주소 정보를 반환합니다.
-                        return list[0].getAddressLine(0)
+                        return FullAddress
                     }
                 }
 

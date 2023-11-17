@@ -1,6 +1,5 @@
-<!-- fragment_finding_a_way.xml -->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,22 +8,94 @@
     android:padding="16dp"
     tools:context=".ui.finding_a_way.Finding_a_wayFragment">
 
-    <EditText
-        android:id="@+id/et_start_location"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="출발지를 입력하세요" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <EditText
-        android:id="@+id/et_end_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="도착지를 입력하세요" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginRight="10dp"
+            android:gravity="center_vertical">
 
-    <Button
-        android:id="@+id/btn_find_route"
+            <ImageButton
+                android:id="@+id/Change_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/change" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp"
+                android:gravity="center">
+
+                <EditText
+                    android:id="@+id/et_start_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:background="@drawable/search_bar_finding_a_way"
+                    android:hint="  출발지"
+                    android:paddingLeft="10dp"
+                    android:maxLines="1"/>
+
+                <ImageButton
+                    android:id="@+id/start_clear_button"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/baseline_clear_24" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <EditText
+                    android:id="@+id/et_end_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:background="@drawable/search_bar_finding_a_way"
+                    android:hint="  도착지"
+                    android:paddingLeft="10dp"
+                    android:maxLines="1"/>
+
+                <ImageButton
+                    android:id="@+id/end_clear_button"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/baseline_clear_24" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="길 찾기" />
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center">
 
+        <Button
+            android:id="@+id/btn_find_route"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:backgroundTint="#85888D"
+            android:text="길 찾기" />
+    </LinearLayout>
 </LinearLayout>
