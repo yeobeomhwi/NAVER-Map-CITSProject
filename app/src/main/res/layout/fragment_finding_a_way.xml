@@ -48,7 +48,9 @@
                     android:background="@drawable/search_bar_finding_a_way"
                     android:hint="  출발지"
                     android:maxLines="1"
-                    android:paddingLeft="10dp" />
+                    android:inputType="text"
+                    android:paddingLeft="10dp"
+                    android:imeOptions="actionNext"/>
 
                 <ImageButton
                     android:id="@+id/start_clear_button"
@@ -70,8 +72,10 @@
                     android:layout_height="48dp"
                     android:background="@drawable/search_bar_finding_a_way"
                     android:hint="  도착지"
+                    android:paddingLeft="10dp"
                     android:maxLines="1"
-                    android:paddingLeft="10dp" />
+                    android:inputType="text"
+                    android:imeOptions="actionNext"/>
 
                 <ImageButton
                     android:id="@+id/end_clear_button"

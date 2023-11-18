@@ -18,6 +18,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.cits_project.R
 import com.example.cits_project.databinding.FragmentFindingAWay2Binding
+import com.example.cits_project.ui.finding_a_way.api.NaverAPI
+import com.example.cits_project.ui.finding_a_way.api.ResultPath
+import com.example.cits_project.ui.finding_a_way.api.Result_path
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraAnimation
@@ -209,15 +212,27 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
 
     private fun getLatLngFromAddress(address: String): LatLng {
         val geocoder = Geocoder(requireContext())
-        val addressList = geocoder.getFromLocationName(address, 1)
+        val addressList: List<Address>?
 
-        if (addressList != null && addressList.isNotEmpty()) {
-            val latitude = addressList[0].latitude
-            val longitude = addressList[0].longitude
-            return LatLng(latitude, longitude)
-        } else {
-            // 주소 변환 실패 시 처리
-            throw IllegalArgumentException("주소를 LatLng으로 변환할 수 없습니다.")
+        try {
+            // 예외가 발생할 수 있는 부분을 try-catch 블록으로 감싸줍니다.
+            addressList = geocoder.getFromLocationName(address, 1)
+
+            if (addressList != null && addressList.isNotEmpty()) {
+                val latitude = addressList[0].latitude
+                val longitude = addressList[0].longitude
+                return LatLng(latitude, longitude)
+            } else {
+                // 주소 변환 실패 시 처리
+                throw IllegalArgumentException("주소를 LatLng으로 변환할 수 없습니다.")
+            }
+        } catch (e: Exception) {
+            // 예외가 발생하면 콘솔에 로그 출력 및 Toast 메시지 표시
+            Log.e("AddressConversion", "Error converting address to LatLng: ${e.message}")
+            Toast.makeText(requireContext(), "주소를 LatLng으로 변환할 수 없습니다.", Toast.LENGTH_SHORT).show()
+
+            // 기본값으로 0, 0 좌표를 반환하거나 원하는 처리를 추가할 수 있습니다.
+            return LatLng(0.0, 0.0)
         }
     }
 

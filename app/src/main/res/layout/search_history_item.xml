@@ -1,27 +1,57 @@
-<!-- res/layout/search_history_item.xml -->
-
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="16dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
-        android:id="@+id/startLocationTextView"
-        android:layout_width="wrap_content"
+        android:id="@+id/start_text_view"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="출발지"
-        android:textSize="16sp"
-        android:textColor="#000000"
-        android:layout_marginRight="40dp"
-        />
+        android:layout_margin="10dp"
+        android:text="홍대역입니다. "
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
-        android:id="@+id/endLocationTextView"
+        android:id="@+id/move_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="도착지"
-        android:textSize="16sp"
-        android:textColor="#000000"/>
-</LinearLayout>
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginVertical="10dp"
+        android:text="→"
+        android:textColor="@color/gray"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/end_text_view"
+        app:layout_constraintStart_toEndOf="@+id/start_text_view"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <TextView
+        android:id="@+id/end_text_view"
+        android:text="판교역입니다.판교역입니다"
+        android:textSize="15sp"
+        android:textColor="@color/black"
+        android:layout_margin="10dp"
+        android:textStyle="bold"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <View
+        android:layout_marginTop="16dp"
+        android:background="@color/gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/end_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

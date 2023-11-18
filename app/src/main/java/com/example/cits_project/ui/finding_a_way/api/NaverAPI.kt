@@ -1,4 +1,4 @@
-package com.example.cits_project.ui.finding_a_way
+package com.example.cits_project.ui.finding_a_way.api
 
 
 import retrofit2.http.GET

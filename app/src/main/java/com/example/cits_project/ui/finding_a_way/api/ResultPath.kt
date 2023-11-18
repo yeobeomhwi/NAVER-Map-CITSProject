@@ -1,4 +1,4 @@
-package com.example.cits_project.ui.finding_a_way
+package com.example.cits_project.ui.finding_a_way.api
 
 data class ResultPath(
     val route : Result_trackoption,

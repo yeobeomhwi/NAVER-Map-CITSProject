@@ -25,7 +25,10 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:layout_gravity="top"
-        android:background="@color/white"/>
+        android:background="@color/white"
+        android:maxLines="1"
+        android:inputType="text"
+        android:imeOptions="actionNext"/>
 
     <include
         android:id="@+id/bottom_Sheet_layout"

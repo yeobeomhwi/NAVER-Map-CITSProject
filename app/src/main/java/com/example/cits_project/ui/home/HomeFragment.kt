@@ -1,11 +1,13 @@
 package com.example.cits_project.ui.home
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
@@ -57,6 +59,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         )
     }
 
+
     // Fragment 뷰를 생성할 때 호출되는 함수
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -95,6 +98,10 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 return if (!query.isNullOrEmpty()) {
                     // Retrofit을 사용하여 검색 API 호출
                     performSearch(query)
+
+                    // 키보드를 숨김
+                    val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    inputMethodManager.hideSoftInputFromWindow(searchView.windowToken, 0)
                     true
                 } else {
                     false
