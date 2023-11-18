@@ -2,9 +2,7 @@ package com.example.cits_project
 
 import android.os.Bundle
 import android.view.Menu
-import android.view.View
-import android.widget.SearchView
-import com.google.android.material.snackbar.Snackbar
+
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -14,8 +12,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cits_project.databinding.ActivityMainBinding
-import com.example.cits_project.ui.home.HomeFragment
-import com.example.cits_project.ui.finding_a_way.Finding_a_wayFragment
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,6 +27,12 @@ class MainActivity : AppCompatActivity() {
 
         // 뷰 바인딩 초기화
         binding = ActivityMainBinding.inflate(layoutInflater)
+        if (binding != null) {
+            setContentView(binding.root)
+        } else {
+            // Handle the case where binding is null
+            // Log an error or take appropriate action
+        }
         setContentView(binding.root)
 
         // 툴바 설정

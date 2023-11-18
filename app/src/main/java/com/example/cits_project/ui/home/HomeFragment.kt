@@ -2,46 +2,53 @@ package com.example.cits_project.ui.home
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.location.Geocoder
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.cits_project.R
 import com.example.cits_project.databinding.FragmentHomeBinding
+import com.example.cits_project.Search.SearchRepository
+import com.example.cits_project.Search.SearchResult
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.CameraPosition
-import com.naver.maps.map.CameraUpdate
-import com.naver.maps.map.LocationTrackingMode
-import com.naver.maps.map.MapFragment
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.*
 import com.naver.maps.map.overlay.InfoWindow
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
+import okhttp3.internal.notify
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
+
 
 class HomeFragment : Fragment(), OnMapReadyCallback {
 
-    // View Binding을 사용하여 레이아웃과 상호작용하는 데 필요한 바인딩 변수 선언
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    // 위치 정보 및 지도에 대한 변수 초기화
+    private val recyclerViewAdapter = recyclerViewAdapter {
+        //카메라 움직임
+        collapseBottomSheet()
+        moveCamera(it,17.0)
+
+    }
     private lateinit var locationSource: FusedLocationSource
     private lateinit var naverMap: NaverMap
-    private lateinit var marker: Marker
-    private lateinit var infoWindow : InfoWindow
+    private lateinit var infoWindow: InfoWindow
 
-    // 위치 권한 요청에 필요한 코드와 권한 목록 정의
+    private var markers = emptyList<Marker>()
+
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
         private val PERMISSIONS = arrayOf(
@@ -50,13 +57,13 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         )
     }
 
-    // 뷰 생성 시 호출되는 함수
+    // Fragment 뷰를 생성할 때 호출되는 함수
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // HomeViewModel 초기화
+        // ViewModel 초기화
         val homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
         // View Binding 초기화
@@ -70,19 +77,106 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             requestLocationPermission()
         }
 
-//        // 검색 버튼 클릭 이벤트 설정
-//        val searchButton = root.findViewById<ImageButton>(R.id.search_button)
-//        searchButton.setOnClickListener {
-//            val searchText = root.findViewById<EditText>(R.id.search_edit_text).text.toString()
-//            searchAddress(searchText)
-//        }
+        // fragment_home.xml에서 include된 View에 대한 참조 얻기
+        val bottomSheetLayout = root.findViewById<ConstraintLayout>(R.id.bottom_Sheet_layout)
+
+        // bottom_sheet.xml에서 RecyclerView에 대한 참조 얻기
+        val recyclerView = bottomSheetLayout.findViewById<RecyclerView>(R.id.bottomsSheetRecyclerView)
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+                adapter = recyclerViewAdapter
+        }
+
+
+// SearchView 초기화 및 검색 이벤트 처리
+        val searchView = root.findViewById<androidx.appcompat.widget.SearchView>(R.id.search_view)
+        searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return if (!query.isNullOrEmpty()) {
+                    // Retrofit을 사용하여 검색 API 호출
+                    performSearch(query)
+                    true
+                } else {
+                    false
+                }
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // 텍스트가 변경될 때의 동작 (현재는 처리하지 않음)
+                return true
+            }
+        })
 
         // 뷰 반환
         return root
     }
 
+    // 검색을 수행하는 함수
+    //...
+
+    // 검색을 수행하는 함수
+    private fun performSearch(query: String) {
+        // Retrofit을 사용하여 검색 API 호출
+        SearchRepository.getSearchPoint(query).enqueue(object : Callback<SearchResult> {
+            override fun onResponse(call: Call<SearchResult>, response: Response<SearchResult>) {
+                // API 응답 성공 처리
+                val searchItemList = response.body()?.items.orEmpty()
+
+                if (searchItemList.isEmpty()) {
+                    // 검색 결과가 없는 경우
+                    Toast.makeText(context, "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                // 기존 마커 제거
+                markers.forEach {
+                    it.map = null
+                }
+
+                // 새로운 검색 결과로 마커 생성
+                markers = searchItemList.map {
+                    val cleanTitle = it.getCleanTitle()
+                    Marker(
+                        LatLng(
+                            it.mapy.toDouble() / 10000000.0,  // 위도
+                            it.mapx.toDouble() / 10000000.0   // 경도
+                        )
+                    ).apply {
+                        captionText = cleanTitle // <b> 태그가 한번씩 나와서 태그 제거
+                        map = naverMap
+                    }
+                }
+
+                recyclerViewAdapter.setData(searchItemList)
+                collapseBottomSheet()
+                moveCamera(markers.first().position, 13.0)
+
+            }
+
+            override fun onFailure(call: Call<SearchResult>, t: Throwable) {
+                // API 호출 실패 처리
+            }
+        })
+    }
+
+//...
+
+
+    private fun moveCamera(position: LatLng,zoomLevel: Double){
+        // 첫 번째 검색 결과 위치로 카메라 이동
+        val cameraUpdate = CameraUpdate.scrollAndZoomTo(position, zoomLevel)
+            .animate(CameraAnimation.Easing)
+        naverMap.moveCamera(cameraUpdate)
+    }
+
+    private fun collapseBottomSheet(){
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetLayout.root)
+        bottomSheetBehavior.state = STATE_COLLAPSED
+    }
+
     // 지도 초기화 함수
     private fun initMap() {
+        // 지도 Fragment를 가져오거나 생성하여 추가
         val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as MapFragment?
             ?: MapFragment.newInstance().also {
                 childFragmentManager.beginTransaction().add(R.id.map_fragment, it).commit()
@@ -94,7 +188,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     // 위치 권한 확인 함수
     private fun checkLocationPermission(): Boolean {
         return PERMISSIONS.all {
-            ContextCompat.checkSelfPermission(requireContext(), it) == PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
         }
     }
 
@@ -109,71 +203,54 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     // 위치 권한 요청 결과 처리 함수
     override fun onRequestPermissionsResult(
-        requestCode: Int,  // 권한 요청 코드
-        permissions: Array<String>,  // 요청한 권한 목록
-        grantResults: IntArray  // 권한 요청 결과
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
     ) {
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {  // 만약 요청 코드가 위치 권한 요청 코드와 일치한다면
-            if (checkLocationPermission()) {  // 만약 위치 권한이 허용되었다면
-                initMap()  // 지도 초기화 함수 호출
-            } else {  // 만약 위치 권한이 거부되었다면
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (checkLocationPermission()) {
+                initMap()
+            } else {
                 Toast.makeText(
                     requireContext(),
-                    "위치 권한이 필요합니다.",  // 위치 권한이 필요하다는 메시지를 토스트로 표시
+                    "위치 권한이 필요합니다.",
                     Toast.LENGTH_SHORT
                 ).show()
             }
-        } else {  // 위치 권한 요청 코드가 일치하지 않는 경우
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults)  // 기본 동작을 수행 (상위 클래스의 함수 호출)
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
-
 
     // 지도 준비 완료 시 호출되는 함수
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
-        naverMap.locationSource = locationSource  // 위치 소스를 설정하여 위치 정보를 가져오도록 합니다.
-
+        naverMap.locationSource = locationSource
         naverMap.locationTrackingMode = LocationTrackingMode.Face
-
-        // 여기에 추가적인 지도 설정 및 기능을 작성하세요...
-
-        // 마커 초기화
-        marker = Marker()
-        marker.width = 60
-        marker.height = 80
-        // InfoWindow 초기화
-        infoWindow = InfoWindow()
-
 
         naverMap.apply {
             // 지도 유형 설정
-            mapType = NaverMap.MapType.Navi // 네비게이션용 지도로 설정
+            mapType = NaverMap.MapType.Navi
 
             // 레이어 그룹 활성화 설정
-            setLayerGroupEnabled(NaverMap.LAYER_GROUP_TRAFFIC, true) // 실시간 교통 정보 표시
-            setLayerGroupEnabled(NaverMap.LAYER_GROUP_BUILDING, true) // 건물 표시
-            setLayerGroupEnabled(NaverMap.LAYER_GROUP_TRANSIT, true) // 대중교통 정보 표시
+            setLayerGroupEnabled(NaverMap.LAYER_GROUP_TRAFFIC, true)
+            setLayerGroupEnabled(NaverMap.LAYER_GROUP_BUILDING, true)
+            setLayerGroupEnabled(NaverMap.LAYER_GROUP_TRANSIT, true)
 
-            buildingHeight = 0.5f // 건물 높이 50% 지정
-            symbolPerspectiveRatio = 1f // 심볼 원근감
+            // 건물 높이와 심볼 원근감 설정
+            buildingHeight = 0.5f
+            symbolPerspectiveRatio = 1f
 
-            // 카메라 포지션 설정
+            // 카메라 초기 위치 설정
             val cameraPosition = CameraPosition(
                 LatLng(0.0, 0.0),
                 18.0, // 줌 레벨
-                70.0, // 기울임 각도
-                0.0 // 베어링 각도
+                0.0, // 기울임 각도
+                0.0  // 베어링 각도
             )
-            //현재위치 좌표
-//            naverMap.addOnLocationChangeListener { location ->
-//                if (location != null) {
-//                    Log.d("LocationInfo", "${location.latitude}, ${location.longitude}")
-//                } else {
-//                    Log.d("LocationInfo", "Location unavailable")
-//                }
-//            }
-            naverMap.addOnLocationChangeListener { location ->
+
+            // 현재 위치 좌표를 출력
+            addOnLocationChangeListener { location ->
                 if (location != null) {
                     val currentLatLng = "현재위치 좌표: ${location.latitude}, ${location.longitude}"
                     println(currentLatLng)
@@ -181,113 +258,30 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                     println("현재위치 좌표: Location unavailable")
                 }
             }
-            // 카메라 적용
+
+            // 카메라 이동 및 설정
             moveCamera(CameraUpdate.toCameraPosition(cameraPosition))
 
-            // 줌 레벨 설정
-            minZoom = 15.0 // 최소 줌 레벨
-            maxZoom = 20.0 // 최대 줌 레벨
+            // 최소 및 최대 줌 레벨 설정
+            minZoom = 10.0
+            maxZoom = 20.0
 
             // UI 설정
             uiSettings.apply {
-                isLocationButtonEnabled = true // 현재 위치 활성화
-                isTiltGesturesEnabled = true // 틸트 활성화
-                isRotateGesturesEnabled = true // 회전 활성
-                isCompassEnabled = false // 나침반비활성화
-                isZoomControlEnabled = true //줌 컨트롤바 활성화
+                isLocationButtonEnabled = true  // 현재 위치 버튼 활성화
+                isTiltGesturesEnabled = true  // 틸트 제스처 활성화
+                isRotateGesturesEnabled = true  // 회전 제스처 활성화
+                isCompassEnabled = false  // 나침반 비활성화
+                isZoomControlEnabled = true  // 줌 컨트롤바 활성화
             }
 
-            // 현재 위치 아이콘을 보이게 합니다.
+            // 현재 위치 아이콘을 보이게 설정
             val locationOverlay = locationOverlay
             locationOverlay.isVisible = true
-//
-//            ActivityCompat.requestPermissions(this@MapViewActivity, PERMISSIONS, LOCATION_PERMISSION_REQUEST_CODE)
-//            Toast.makeText(this@MapViewActivity, "맵 초기화 완료", Toast.LENGTH_LONG).show()
-
-//          // 검색 버튼 클릭 시 호출될 함수를 설정합니다.
-            val searchButton = binding.searchButton
-//
-//          // 검색창에서 텍스트를 가져와서 주소로 검색합니다
-            binding.searchButton.setOnClickListener{
-                val searchText = binding.searchEditText.text.toString()
-                infoWindow.close()
-                searchAddress(searchText)
-            }
         }
     }
 
-
-    fun removeCountryFromAddress(address: String): String {
-        // 주소를 공백을 기준으로 나눕니다.
-        val parts = address.split(" ")
-
-        // "대한민국"을 필터링하여 리스트에서 제거합니다.
-        val filteredParts = parts.filter { it != "대한민국" }
-
-        // 필터링된 부분들을 다시 공백을 이용하여 문자열로 합칩니다.
-        return filteredParts.joinToString(" ")
-
-    }
-
-    // 주소 검색 함수
-    fun searchAddress(address: String) {
-
-        // Geocoder 클래스를 사용하여 주소를 좌표로 변환하는 함수
-
-        // Geocoder 객체를 생성하고, 현재 액티비티(this)를 사용합니다.
-        val geocoder = Geocoder(requireContext())
-
-        // 입력된 주소를 좌표로 변환하고 결과를 리스트에 저장합니다.
-        val list = geocoder.getFromLocationName(address, 1)
-
-        // 결과 리스트가 null이 아닌지 확인합니다.
-        if (list != null) {
-
-            // 결과 리스트가 비어있지 않은지 확인합니다.
-            if (list.isNotEmpty()) {
-
-                // 전체 검색 결과를 로그로 출력합니다.
-                for (i in list.indices) {
-                    Log.d("Geocoder", "결과 $i: ${list[i].getAddressLine(0)}")
-                }
-
-
-                // 주소를 좌표로 변환한 결과 리스트에서 첫 번째 항목을 가져와서 위치로 설정합니다.
-                val location = LatLng(list[0].latitude, list[0].longitude)
-
-                val FullAddress = removeCountryFromAddress(list[0].getAddressLine(0))
-
-                // 마커의 위치를 변환된 좌표로 설정합니다.
-                marker.position = location
-
-                // 마커 클릭 시 표시될 InfoWindow 생성
-                infoWindow.adapter = object : InfoWindow.DefaultTextAdapter(requireContext()) {
-                    override fun getText(infoWindow: InfoWindow): CharSequence {
-                        // 마커를 클릭했을 때 표시할 주소 정보를 반환합니다.
-                        return FullAddress
-                    }
-                }
-
-                marker.setOnClickListener {
-                    // 마커를 클릭했을 때 InfoWindow를 엽니다.
-                    infoWindow.open(marker)
-                    true
-                }
-
-                // 마커를 Naver 지도에 추가합니다.
-                marker.map = naverMap
-                // 마커가 표시된 위치로 카메라를 이동시킵니다.
-                val cameraUpdate = CameraUpdate.scrollTo(location)
-                naverMap.moveCamera(cameraUpdate)
-
-            } else {
-                // 변환된 좌표가 없을 경우, 사용자에게 메시지를 표시합니다.
-                Toast.makeText(requireContext(), "주소를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    // Fragment가 뷰를 파기할 때 호출되는 함수
+    // Fragment 뷰가 소멸될 때 호출되는 함수
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

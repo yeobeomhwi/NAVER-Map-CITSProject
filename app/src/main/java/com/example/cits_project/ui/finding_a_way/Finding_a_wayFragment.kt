@@ -92,8 +92,8 @@ class Finding_a_wayFragment : Fragment() {
         // 검색 기록을 관찰하여 업데이트될 때마다 리사이클러뷰를 갱신합니다.
         finding_a_wayViewModel.searchHistory.observe(viewLifecycleOwner, { searchHistory ->
             // 리사이클러뷰 어댑터에 검색 기록을 전달하여 갱신합니다.
-            val adapter = SearchHistoryAdapter(searchHistory)
-            binding.SearchHistory.adapter = adapter
+//            val adapter = SearchHistoryAdapter(searchHistory)
+//            binding.SearchHistory.adapter = adapter
         })
 
         return root
