@@ -344,44 +344,44 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
                             // 5. PathOverlay에 좌표 정보를 설정합니다.
                             path.coords = path_container ?: emptyList()
 
-                            // 6. 경로의 색상을 검은색 테두리를 노란색으로 지정합니다.
-                            path.color = Color.BLACK
-                            path.outlineColor = Color.YELLOW
-                            path.width = 20
+                                // 6. 경로의 색상을 검은색 테두리를 노란색으로 지정합니다.
+                                path.color = Color.BLACK
+                                path.outlineColor = Color.YELLOW
+                                path.width = 20
 
-                            // 7. 지도에 경로를 추가하여 표시합니다.
-                            path.map = naverMap
+                                // 7. 지도에 경로를 추가하여 표시합니다.
+                                path.map = naverMap
 
-                            // 8. 경로 정보가 있을 경우, 시작 위치로 지도를 이동시킵니다.
-                            if (path.coords.isNotEmpty()) {
-                                // 경로의 첫 번째 좌표로 카메라 이동을 설정합니다.
-                                val cameraUpdate = CameraUpdate.scrollAndZoomTo(path.coords[0]!!,17.0)
-                                    .animate(CameraAnimation.Fly, 5000)
+                                // 8. 경로 정보가 있을 경우, 시작 위치로 지도를 이동시킵니다.
+                                if (path.coords.isNotEmpty()) {
+                                    // 경로의 첫 번째 좌표로 카메라 이동을 설정합니다.
+                                    val cameraUpdate = CameraUpdate.scrollAndZoomTo(path.coords[0]!!,17.0)
+                                        .animate(CameraAnimation.Fly, 5000)
 
-                                // 카메라 이동을 적용합니다.
-                                naverMap.moveCamera(cameraUpdate)
+                                    // 카메라 이동을 적용합니다.
+                                    naverMap.moveCamera(cameraUpdate)
 
-                                // 안내 메시지를 표시합니다.
-                                Toast.makeText(requireContext(), "경로 안내가 시작됩니다.", Toast.LENGTH_SHORT).show()
+                                    // 안내 메시지를 표시합니다.
+                                    Toast.makeText(requireContext(), "경로 안내가 시작됩니다.", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                // traoptimal이 null일 경우 처리
+                                Log.d("ServerResponse3", "traoptimal is null")
+                                Log.d("ServerResponse3","Response: ${response?.body()}")
                             }
-                        } else {
-                            // traoptimal이 null일 경우 처리
-                            Log.d("ServerResponse3", "traoptimal is null")
-                            Log.d("ServerResponse3","Response: ${response?.body()}")
                         }
                     }
-                }
 
-                override fun onFailure(call: Call<ResultPath>, t: Throwable) {
-                    // 에러 처리
-                    Log.e("ServerResponse4", "Error: ${t.message}")
-                }
-            })
+                    override fun onFailure(call: Call<ResultPath>, t: Throwable) {
+                        // 에러 처리
+                        Log.e("ServerResponse4", "Error: ${t.message}")
+                    }
+                })
+            }
+        }
+
+        override fun onDestroyView() {
+            super.onDestroyView()
+            _binding = null
         }
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-}

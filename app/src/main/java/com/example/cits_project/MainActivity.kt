@@ -1,6 +1,8 @@
 package com.example.cits_project
 
+import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 
 import com.google.android.material.navigation.NavigationView
@@ -12,6 +14,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cits_project.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity() {
 
