@@ -13,7 +13,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.cits_project.databinding.ActivityMainBinding
 
-
 class MainActivity : AppCompatActivity() {
 
     // 뷰 바인딩을 위한 변수
@@ -23,16 +22,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super. onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState)
 
         // 뷰 바인딩 초기화
         binding = ActivityMainBinding.inflate(layoutInflater)
-        if (binding != null) {
-            setContentView(binding.root)
-        } else {
-            // Handle the case where binding is null
-            // Log an error or take appropriate action
-        }
         setContentView(binding.root)
 
         // 툴바 설정
@@ -59,9 +52,9 @@ class MainActivity : AppCompatActivity() {
         // 메뉴를 인플레이트하여 액션 바에 추가
         menuInflater.inflate(R.menu.main, menu)
 
-
         return super.onCreateOptionsMenu(menu)
     }
+
     override fun onSupportNavigateUp(): Boolean {
         // 네비게이션 컨트롤러를 이용하여 뒤로 가기 동작 처리
         val navController = findNavController(R.id.nav_host_fragment_content_main)

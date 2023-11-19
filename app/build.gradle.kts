@@ -55,6 +55,9 @@ dependencies {
     //좌표 변환 라이브러리
     implementation ("org.osgeo:proj4j:0.1.0")
 
+
+    implementation ("androidx.databinding:databinding-runtime:7.0.0")
+
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")

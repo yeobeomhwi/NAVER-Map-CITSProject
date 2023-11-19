@@ -87,7 +87,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         val recyclerView = bottomSheetLayout.findViewById<RecyclerView>(R.id.bottomsSheetRecyclerView)
         recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
-                adapter = recyclerViewAdapter
+            adapter = recyclerViewAdapter
         }
 
 
