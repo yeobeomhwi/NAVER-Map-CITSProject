@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Color
+import android.graphics.Color.argb
 import android.location.Address
 import android.location.Geocoder
 import android.net.Uri
@@ -29,14 +30,19 @@ import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.overlay.Align
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.overlay.PathOverlay
 import com.naver.maps.map.util.FusedLocationSource
+import com.naver.maps.map.util.MarkerIcons
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import android.location.Location
+
 
 class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
 
@@ -134,7 +140,7 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
     // 속력 정보를 업데이트하는 함수
     private fun updateSpeed(speed: Float) {
         val speedInt = speed.toInt() // 속력을 정수로 변환
-        speedTextView.text = "${speed}"
+        speedTextView.text = "${speedInt}"
     }
 
     override fun onMapReady(naverMap: NaverMap) {
@@ -153,6 +159,7 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
 
             searchAddress(startLocationStr, endLocationStr, binding.textView)
         }
+
 
 
 
@@ -275,14 +282,26 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
             val cameraUpdate = CameraUpdate.fitBounds(LatLngBounds.from(startLocation, endLocation), 100)
             naverMap.moveCamera(cameraUpdate)
 
+            // 공통 마커 생성 함수
+           fun createMarker(position: LatLng, caption: String, icon: OverlayImage, iconTintColor: Int): Marker {
+                val marker = Marker()
+                marker.position = position
+                marker.captionText = caption //글씨
+                marker.setCaptionAligns(Align.Top) // 텍스트 위치를 가운데 위로
+                marker.captionTextSize = 16f // 글씨 크기
+                marker.icon = icon //바탕색
+                marker.iconTintColor = iconTintColor //보이는색
+                marker.alpha = 0.5f
+                return marker
+            }
+
             // 출발지와 도착지에 마커를 추가합니다.
-            val startMarker = Marker()
-            startMarker.position = startLocation
+            val startMarker = createMarker(startLocation, "출발지", MarkerIcons.BLACK, Color.RED)
             startMarker.map = naverMap
 
-            val endMarker = Marker()
-            endMarker.position = endLocation
+            val endMarker = createMarker(endLocation, "도착지", MarkerIcons.BLACK, Color.BLUE)
             endMarker.map = naverMap
+
 
             // 출발지와 도착지의 좌표를 출력합니다.
             val startLatLng = "출발지 좌표: ${startLocation.latitude}, ${startLocation.longitude}"
@@ -345,9 +364,9 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
                             path.coords = path_container ?: emptyList()
 
                                 // 6. 경로의 색상을 검은색 테두리를 노란색으로 지정합니다.
-                                path.color = Color.BLACK
-                                path.outlineColor = Color.YELLOW
-                                path.width = 20
+                                path.color = Color.GRAY
+                                path.width = 15
+                                path.passedColor = Color.argb(0,0,0,0)
 
                                 // 7. 지도에 경로를 추가하여 표시합니다.
                                 path.map = naverMap
