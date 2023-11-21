@@ -26,7 +26,7 @@ object SearchRepository {
         .build()
 
     // Retrofit 인스턴스 생성
-    private val retrofit = Retrofit.Builder()
+    val retrofit = Retrofit.Builder()
         .baseUrl("https://openapi.naver.com/")
         .addConverterFactory(MoshiConverterFactory.create(moshi))
         .client(okHttpClient)
@@ -41,7 +41,7 @@ object SearchRepository {
     }
 
     // 네이버 Open API를 호출하기 위한 Interceptor 구현
-    private class AppInterceptor : Interceptor {
+    class AppInterceptor : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             // 네이버 Open API에 필요한 클라이언트 ID와 Secret을 헤더에 추가
             val clientID = MyApplication.applicationContext.getString(R.string.naver_search_client_id)
