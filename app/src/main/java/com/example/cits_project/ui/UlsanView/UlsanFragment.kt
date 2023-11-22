@@ -14,8 +14,10 @@ import com.example.cits_project.Ulsan.LocationService.CITSLocationResponse
 import com.example.cits_project.databinding.FragmentSlideshowBinding
 
 public class UlsanFragment : Fragment() {
+    //private val serviceKey = "Rp5a%2Bo7IpQ8GkuHupL0lqV6PSZmT3PaVE2Psd0tID1lSXjrroHKrnzpHnf%2B%2Fw4%2BLU9I8XubDag6kYCG6hu2rPA%3D%3D"
     private val serviceKey = "TOlfl5zsDX0idc1uqdtoVkQkk7oSlUV+Mqks/OYbEuYjRtgy8j+4Vv4rrFOFQm9YHCIOlPr91KwSNqe0yJrSEg=="
     //private val serviceKey = "SSzwenl0pt9fP0H0Lzv+JTXtRoFXfzc9BHGAnOe9sRgnFUZ4wjmzRhrnOK1yEY0hNrThwhq3RpdIDzvH2h6Lgw=="
+
     private var _binding: FragmentSlideshowBinding? = null
     private val locationRepository = CITSLocationRepository()
     private val binding get() = _binding!!
@@ -34,42 +36,41 @@ public class UlsanFragment : Fragment() {
 
         val textView: TextView = binding.textSlideshow
 
-        // 호출할 API에 필요한 매개변수 설정 (예: serviceKey, version)
+        val version = "*"
 
-        val version = "20221026164946"
-
-        // CITS API 호출
         CITSIdRepository.getCITSIdService(serviceKey, version,
             onSuccess = { citsIdResponse ->
                 // 성공적으로 응답을 받았을 때 실행되는 부분
                 val filteredItems = citsIdResponse?.body?.items?.filter { it.offerType == "SIG" }
 
                 val filteredItemsCount = filteredItems?.size
-                val linkId = filteredItems?.map { it.linkId }?.joinToString(", ")
-                Log.d("CITSResponse", "Success: link_ids = $linkId")
-                Log.d("filteredItemsCount", "Success: filteredItemsCount = $filteredItemsCount")
+                val linkIds = filteredItems?.map { it.linkId }?.joinToString(", ")
+                Log.d("CITSResponse", "Success: filteredItemsCount = $filteredItemsCount")
+                Log.d("CITSResponse", "Success: linkIds = $linkIds")
 
+                linkIds?.split(", ")?.chunked(10)?.forEach { chunk ->
+                    // Process each chunk of 10 linkIds
+                    chunk.forEach { individualLinkId ->
+                        // Convert the entire string to a numeric value
+                        val numericLinkId = individualLinkId.filter { it.isDigit() }.toLongOrNull()
 
-                // linkId가 null이 아닌 경우에만 getCITSLocationService 호출
-                var maxIndex = -1 // 최대값을 추적할 변수 초기화
-
-                if (linkId != null) {
-                    for (i in 0 until (filteredItemsCount ?: 0)) {
-                        val currentLinkId = filteredItems[i].linkId
-                        if (currentLinkId != null) {
-                            getCITSLocationService(currentLinkId)
+                        // Check if conversion was successful before using the value
+                        if (numericLinkId != null) {
+                            getCITSLocationService(numericLinkId.toString())
+                            //Log.d("linkId_num", "individualLinkId: $numericLinkId")
+                        } else {
+                           // Log.e("linkId_num", "Conversion to numeric value failed: $individualLinkId")
                         }
-                        // if (i > maxIndex) {
-                        //     maxIndex = i
-                        // }
                     }
-                    // Log.d("max", "max = $maxIndex")
                 }
             }
         ) { error ->
             // 오류가 발생했을 때 실행되는 부분
             Log.e("CITSResponse", "Error: $error")
         }
+
+
+
         return root
     }
 
@@ -77,15 +78,11 @@ public class UlsanFragment : Fragment() {
         // linkId와 type을 활용하여 getCITSLocationService 호출
         locationRepository.getCITSLocationService(serviceKey, linkId,
             onSuccess = { citsLocationResponse ->
+                if(citsLocationResponse?.body != null){
+                    val Itemss = citsLocationResponse?.body
+                    Log.d("loc","fsdf= $Itemss")
+                }
 
-                Log.d("loc","fsdf= $citsLocationResponse")
-                // 성공적으로 응답을 받았을 때 실행되는 부분
-                // citsLocationResponse에 포함된 데이터 활용
-                // 예시: val lttd = citsLocationResponse?.body?.lttd
-                // 예시: val lgtd = citsLocationResponse?.body?.lgtd
-
-                // 받은 데이터를 원하는 방식으로 처리
-                // 예시: textView.text = "Latitude: $lttd, Longitude: $lgtd"
             }
         ) { error ->
             // 오류가 발생했을 때 실행되는 부분
