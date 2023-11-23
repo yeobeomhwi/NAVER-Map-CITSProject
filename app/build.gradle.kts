@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -55,6 +56,28 @@ dependencies {
 
     //좌표 변환 라이브러리
     implementation ("org.osgeo:proj4j:0.1.0")
+
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:32.6.0"))
+
+
+    // TODO: Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+
+    //파이어베이스 인증
+    implementation("com.google.firebase:firebase-auth-ktx")
+
+    //파이어베이스 실시간 데이터
+    implementation("com.google.firebase:firebase-database-ktx")
+
+    //파이어베이스 FCM
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
+
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
+
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")

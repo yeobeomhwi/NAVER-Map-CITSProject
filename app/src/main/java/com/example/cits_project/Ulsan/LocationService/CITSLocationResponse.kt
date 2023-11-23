@@ -15,7 +15,7 @@ data class CITSLocationResponse(
 @JsonClass(generateAdapter = true)
 data class Header(
     @Json(name = "resultCode")
-    val resultCode: Int?,
+    val resultCode: String?,
 
     @Json(name = "totalCnt")
     val totalCnt: Int?,
@@ -39,12 +39,15 @@ data class Body(
 @JsonClass(generateAdapter = true)
 data class Item(
     @Json(name = "ofer_type")
-    val oferType: String?,
+    val ofer_Type: String?,
 
     @Json(name = "lttd")
     val lttd: Double?,
 
     @Json(name = "lgtd")
     val lgtd: Double?,
+
+    @Json(name = "link_id")
+    val link_id: String?
 
 )

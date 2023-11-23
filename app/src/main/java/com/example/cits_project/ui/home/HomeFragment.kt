@@ -66,8 +66,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // ViewModel 초기화
-        val homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
         // View Binding 초기화
         _binding = FragmentHomeBinding.inflate(inflater, container, false)

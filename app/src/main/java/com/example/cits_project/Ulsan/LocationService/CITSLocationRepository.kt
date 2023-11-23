@@ -37,14 +37,10 @@ class CITSLocationRepository {
     private val service = retrofit.create(CITSLocationService::class.java)
 
     // CITS API로부터 위치 정보를 가져오는 함수
-    fun getCITSLocationService(
-        serviceKey: String,
-        linkId: String,
-        onSuccess: (CITSLocationResponse?) -> Unit,
-        onError: (String) -> Unit
-    ) {
+    fun getCITSLocationService(serviceKey: String, linkId: String, onSuccess: (CITSLocationResponse?) -> Unit, onError: (String) -> Unit) {
         // Retrofit을 사용한 비동기적인 호출
         val call = service.getCITSLocationData(serviceKey, linkId)
+
         call.enqueue(object : Callback<CITSLocationResponse> {
             override fun onResponse(
                 call: Call<CITSLocationResponse>,

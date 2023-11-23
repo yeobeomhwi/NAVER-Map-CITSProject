@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "679925813697",
+    "project_id": "wlak-400302",
+    "storage_bucket": "wlak-400302.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:679925813697:android:b353ada7e13a5657779f40",
+        "android_client_info": {
+          "package_name": "com.example.cits_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-UP0-FZxnpu_oWgPw5Fbv8KuQGeeowiY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
