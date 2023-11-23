@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 호출 및 JSON 저장 예제</title>
+</head>
+<body>
+
+    <h1>API 호출 및 JSON 저장 예제</h1>
+
+    <!-- 버튼 -->
+    <button id="callButton">API 호출</button>
+
+    <script>
+        // API 호출 함수
+        function callAPI() {
+            var url = 'https://apis.data.go.kr/6310000/citsapi/service/baseInfo'; // HTTPS 사용
+            var queryParams = '?' + encodeURIComponent('serviceKey') + '=' + 'TOlfl5zsDX0idc1uqdtoVkQkk7oSlUV%2BMqks%2FOYbEuYjRtgy8j%2B4Vv4rrFOFQm9YHCIOlPr91KwSNqe0yJrSEg%3D%3D'; // Service Key
+            queryParams += '&' + encodeURIComponent('version') + '=' + encodeURIComponent('*'); // 기타 파라미터
+
+            // Fetch API를 사용하여 데이터를 가져옴
+            fetch(url + queryParams)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('API 응답 데이터:', data);
+
+                    // JSON 파일로 변환
+                    var jsonData = JSON.stringify(data, null, 2);
+
+                    // Blob 생성
+                    var blob = new Blob([jsonData], { type: 'application/json' });
+
+                    // a 태그를 사용하여 다운로드 링크 생성
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = 'apiData.json';
+                    link.click();
+
+                    console.log('데이터가 JSON 파일로 저장되었습니다.');
+                })
+                .catch(error => console.error('API 호출 중 에러:', error));
+        }
+
+        // 버튼 클릭 시 API 호출
+        document.getElementById('callButton').addEventListener('click', callAPI);
+    </script>
+
+</body>
+</html>

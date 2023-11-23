@@ -54,13 +54,9 @@ class UlsanFragment : Fragment() {
         // View Binding 초기화
         _binding = FragmentUlsanBinding.inflate(inflater, container, false)
         val root: View = binding.root
-// Location_to_Firebase fetchData 메서드 호출
-        locationToFirebase.fetchData()
-
 
         // 뷰 반환
         return root
-        Log.d("return3333","$root")
     }
 
 

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 호출 및 JSON 저장 예제</title>
+</head>
+<body>
+
+    <h1>API 호출 및 JSON 저장 예제</h1>
+
+    <!-- 버튼 -->
+    <button id="callButton" onclick="readData()">데이터 불러오기</button>
+
+     <!-- 데이터를 표시할 엘리먼트 -->
+     <div id="dataDisplay"></div>
+
+    <!-- 외부 API 응답을 표시할 엘리먼트 -->
+    <div id="apiResponseDisplay"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-analytics.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-database.js";
+
+        // Firebase 구성
+        const firebaseConfig = {
+            apiKey: "AIzaSyB79K-4fCayzX5L7P_c1OfYSI96UG4LMU0",
+            authDomain: "wlak-400302.firebaseapp.com",
+            databaseURL: "https://wlak-400302-default-rtdb.firebaseio.com",
+            projectId: "wlak-400302",
+            storageBucket: "wlak-400302.appspot.com",
+            messagingSenderId: "679925813697",
+            appId: "1:679925813697:web:c0dcf0c41a203fc1779f40",
+            measurementId: "G-L0Q74RGL2K"
+        };
+
+        // Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // Realtime Database 초기화
+        const database = getDatabase(app);
+
+        window.readData = async function() {
+            const db = getDatabase();
+            const dataDisplay = document.getElementById('dataDisplay');
+            const apiResponseDisplay = document.getElementById('apiResponseDisplay');
+
+            for (let i = 893; i <= 1140; i++) {
+                // 상수가 아닌 let으로 선언하여 재할당 가능하도록 변경
+                let linkIdRef = ref(db, `/base/body/items/${i}/link_id`);
+                let linkIdSnapshot = await new Promise(resolve => onValue(linkIdRef, resolve));
+                let linkId = linkIdSnapshot.val();
+
+                // 외부 API에 대한 요청을 수행합니다.
+                let url = 'https://apis.data.go.kr/6310000/citsapi/service/itg'; /*URL*/
+                let queryParams = '?' + encodeURIComponent('serviceKey') + '=' + 'TOlfl5zsDX0idc1uqdtoVkQkk7oSlUV%2BMqks%2FOYbEuYjRtgy8j%2B4Vv4rrFOFQm9YHCIOlPr91KwSNqe0yJrSEg%3D%3D'; /*Service Key*/
+                queryParams += '&' + encodeURIComponent('linkId') + '=' + encodeURIComponent(linkId);
+                queryParams += '&' + encodeURIComponent('type') + '=' + 'VMS,CAU,NRO,WSL';
+
+                
+                // fetch를 사용하여 동기적으로 API 호출
+                let response = await fetch(url + queryParams);
+                let apiResponseBody = await response.text();
+
+                console.log(apiResponseBody);
+
+                // 결과 코드 확인 후 데이터가 존재하는 경우에만 표시
+                let apiResponse = JSON.parse(apiResponseBody);
+                if (apiResponse.header.resultCode === 200 && apiResponse.integBody.items && apiResponse.integBody.items.length > 0) {
+                    // "ctnt" 값을 추출하여 표시
+                    let lttd = apiResponse.integBody.items[0].lttd;
+                    let lgtd = apiResponse.integBody.items[0].lgtd;
+
+                    // Firebase Realtime Database에 데이터 저장 (위치 변경: /Location-info)
+                    const dataRef = ref(db, '/Location-info/' + i);  // 각각의 데이터를 독립적인 항목으로 저장
+                    set(dataRef, {
+                        linkId: linkId,
+                        lttd: lttd,
+                        lgtd: lgtd
+                    });
+
+                    let apiResponseDiv = document.createElement('div');
+                    apiResponseDiv.innerHTML = `<strong>Link ID ${i} API Response:</strong><br>${linkId} = Location: ${lttd},${lgtd}<br><br>`;
+                    apiResponseDisplay.appendChild(apiResponseDiv);
+                }
+            }
+        };
+    </script>
+
+</body>
+</html>

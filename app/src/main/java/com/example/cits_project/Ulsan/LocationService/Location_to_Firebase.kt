@@ -10,14 +10,12 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
-
-import java.util.Objects
 
 class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) {
     private val serviceKey = "TOlfl5zsDX0idc1uqdtoVkQkk7oSlUV+Mqks/OYbEuYjRtgy8j+4Vv4rrFOFQm9YHCIOlPr91KwSNqe0yJrSEg=="
     private lateinit var database: DatabaseReference
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+    private var isFetching = false
+
     data class FirebaseDataItem(
         val ofer_Type: String? = null,
         val lttd: Double? = null,
@@ -29,20 +27,17 @@ class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) 
         var items: List<FirebaseDataItem> = emptyList(),
     )
 
-    data class FirebaseHeader(
-        val resultCode: String? = null,
-        var totalCnt: Int? = null,
-        val requestUri: String? = null,
-        val oferType: String? = null,
-        val linkId: String? = null
-    )
-
     data class FirebaseBase(
         val body: FirebaseBody = FirebaseBody()
     )
 
-
     fun fetchData() {
+        if (isFetching) {
+            return  // 이미 데이터를 가져오는 중이라면 무시
+        }
+
+        isFetching = true
+
         // Firebase Database 참조 초기화
         database = Firebase.database.reference
         val dataKey = "base-info"
@@ -57,15 +52,14 @@ class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) 
                 var totalCnt = totalCntValue?.toString()?.toInt() ?: 0
 
                 // 원하는 범위로 제한하세요. 예를 들어, 10으로 제한합니다.
-                totalCnt = totalCnt.coerceIn(0, 1000)
+                totalCnt = totalCnt.coerceIn(0, 40)
 
                 Log.d("linkId 개수", "$totalCnt")
-
 
                 for (i in 0 until totalCnt) {
                     // 각 레벨에 대한 참조를 구성
                     val linkIdRef = dataRef.child("base-info").child("base").child("body").child("items").child(i.toString()).child("linkId")
-                    Log.d("1","$linkIdRef")
+                  
                     linkIdRef.addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
 
@@ -75,27 +69,26 @@ class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) 
                             if (!linkId.isNullOrBlank()) {
                                 getCITSLocation(linkId)
                             } else {
-                                Log.e("FetchData", "linkId가 null이거나 빈 문자열입니다.")
+                                Log.e("FetchData1", "linkId가 null이거나 빈 문자열입니다.")
                             }
                         }
 
                         override fun onCancelled(error: DatabaseError) {
-                            Log.e("FetchData", "Firebase 데이터베이스 오류: $error")
+                            Log.e("FetchData2", "Firebase 데이터베이스 오류: $error")
                         }
                     })
-
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("fetchData", "Firebase 데이터베이스 오류: $error")
+                Log.e("fetchData3", "Firebase 데이터베이스 오류: $error")
+                isFetching = false  // 에러 발생 시에도 false로 설정
             }
         })
-
     }
 
     private fun getCITSLocation(linkId: String) {
-        Log.d("2", "Start of getCITSLocation for linkId: $linkId")
+       // Log.d("2", "Start of getCITSLocation for linkId: $linkId")
         database = Firebase.database.reference
         val dataKey = "Location-info"
         val dataRef = database.child(dataKey) // linkId를 사용하여 경로 생성
@@ -106,9 +99,10 @@ class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) 
             serviceKey,
             linkId,
             { citsLocationResponse ->
+                isFetching = false  // 데이터를 성공적으로 가져왔을 때만 false로 설정
+                //Log.d("3-1", "API 응답: $citsLocationResponse")
                 if (citsLocationResponse?.body != null) {
-                    Log.d("getCITSLocation", "API 응답: $citsLocationResponse")
-
+                  //  Log.d("3-2", "API 응답: $citsLocationResponse")
                     val firebaseData = FirebaseBase(
                         body = FirebaseBody(
                             items = citsLocationResponse.body?.items?.map { item ->
@@ -121,13 +115,14 @@ class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) 
                             } ?: emptyList()
                         )
                     )
-                    Log.d("33","$firebaseData")
+                    Log.d("4","$firebaseData")
                     // 키가 이미 존재하는지 확인
                     dataRef.addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
                             // 기존 데이터가 존재하는 경우에도 새로운 데이터를 추가
                             if (snapshot.exists()) {
                                 val existingData = snapshot.getValue(Location_to_Firebase.FirebaseBase::class.java)
+                                //Log.d("6","$existingData")
 
                                 // 기존 데이터의 아이템 리스트
                                 val existingItems = existingData?.body?.items ?: emptyList()
@@ -147,22 +142,23 @@ class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) 
 
                                 // 기존 데이터를 업데이트
                                 snapshot.ref.setValue(firebaseData)
-                                Log.d("ss1", "Data updated for key: $dataKey")
+                               // Log.d("7", "Data updated for key: $dataKey")
                             } else {
                                 // 기존 데이터가 없는 경우 새로운 데이터를 추가
                                 snapshot.ref.setValue(firebaseData)
-                                Log.d("ss2", "Data added for key: $dataKey")
+                               // Log.d("8", "Data added for key: $dataKey")
                             }
                         }
 
                         override fun onCancelled(error: DatabaseError) {
-                            Log.e("CITSResponse", "Database read error: $error")
+                            Log.e("9", "Database read error: $error")
                         }
                     })
 
                 }
             },
             { error ->
+                isFetching = false  // 에러 발생 시에도 false로 설정
                 // 에러 처리
             }
         )
