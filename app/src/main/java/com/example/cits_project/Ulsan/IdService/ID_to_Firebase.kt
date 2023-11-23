@@ -2,7 +2,7 @@ package com.example.cits_project.ui.UlsanView
 
 import android.util.Log
 import com.example.cits_project.Ulsan.IdService.CITSIdRepository
-import com.example.cits_project.databinding.FragmentSlideshowBinding
+import com.example.cits_project.databinding.FragmentUlsanBinding
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference

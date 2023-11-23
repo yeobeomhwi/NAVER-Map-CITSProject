@@ -38,8 +38,7 @@ class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) 
     )
 
     data class FirebaseBase(
-        val body: FirebaseBody = FirebaseBody(),
-        val header: FirebaseHeader = FirebaseHeader()
+        val body: FirebaseBody = FirebaseBody()
     )
 
 
@@ -58,7 +57,7 @@ class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) 
                 var totalCnt = totalCntValue?.toString()?.toInt() ?: 0
 
                 // 원하는 범위로 제한하세요. 예를 들어, 10으로 제한합니다.
-                totalCnt = totalCnt.coerceIn(250, 1000)
+                totalCnt = totalCnt.coerceIn(0, 1000)
 
                 Log.d("linkId 개수", "$totalCnt")
 
@@ -99,7 +98,7 @@ class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) 
         Log.d("2", "Start of getCITSLocation for linkId: $linkId")
         database = Firebase.database.reference
         val dataKey = "Location-info"
-        val dataRef = database.child(dataKey).child(linkId) // linkId를 사용하여 경로 생성
+        val dataRef = database.child(dataKey) // linkId를 사용하여 경로 생성
 
         val citsLocationRepository = CITSLocationRepository()
 
@@ -111,13 +110,6 @@ class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) 
                     Log.d("getCITSLocation", "API 응답: $citsLocationResponse")
 
                     val firebaseData = FirebaseBase(
-                        header = FirebaseHeader(
-                            resultCode = citsLocationResponse.header?.resultCode,
-                            totalCnt = citsLocationResponse.header?.totalCnt,
-                            requestUri = citsLocationResponse.header?.requestUri,
-                            oferType = citsLocationResponse.header?.oferType,
-                            linkId = citsLocationResponse.header?.linkId
-                        ),
                         body = FirebaseBody(
                             items = citsLocationResponse.body?.items?.map { item ->
                                 FirebaseDataItem(
@@ -129,25 +121,45 @@ class Location_to_Firebase : CoroutineScope by CoroutineScope(Dispatchers.Main) 
                             } ?: emptyList()
                         )
                     )
+                    Log.d("33","$firebaseData")
+                    // 키가 이미 존재하는지 확인
+                    dataRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            // 기존 데이터가 존재하는 경우에도 새로운 데이터를 추가
+                            if (snapshot.exists()) {
+                                val existingData = snapshot.getValue(Location_to_Firebase.FirebaseBase::class.java)
 
-                    // Coroutine을 사용하여 딜레이를 추가하고, 비동기적으로 업데이트를 수행
-                    coroutineScope.launch {
-                        delay(timeMillis = 4000) // 2초 딜레이
+                                // 기존 데이터의 아이템 리스트
+                                val existingItems = existingData?.body?.items ?: emptyList()
 
-                        // Batch 작업을 위한 updateMap 생성
-                        val updateMap = mapOf<String, Any>(
-                            "/Location-info/$linkId" to firebaseData
-                        )
+                                // 새로운 아이템이 기존 아이템과 중복되지 않도록 필터링
+                                val newItems = firebaseData.body.items?.filter { newItem ->
+                                    existingItems.none { it.link_id == newItem.link_id  }
+                                } ?: emptyList()
 
-                        // Firebase Realtime Database에 대한 Batch 업데이트
-                        database.updateChildren(updateMap).addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                Log.d("FirebaseUpdate", "Firebase 데이터가 성공적으로 업데이트되었습니다.")
+                                // 기존 아이템과 새로운 아이템을 합침
+                                val updatedItems = existingItems.toMutableList().apply {
+                                    addAll(newItems)
+                                }
+
+                                // 새로운 데이터에 업데이트된 아이템 리스트 설정
+                                firebaseData.body.items = updatedItems
+
+                                // 기존 데이터를 업데이트
+                                snapshot.ref.setValue(firebaseData)
+                                Log.d("ss1", "Data updated for key: $dataKey")
                             } else {
-                                Log.e("FirebaseUpdate", "Firebase 데이터 업데이트 실패: ${task.exception}")
+                                // 기존 데이터가 없는 경우 새로운 데이터를 추가
+                                snapshot.ref.setValue(firebaseData)
+                                Log.d("ss2", "Data added for key: $dataKey")
                             }
                         }
-                    }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("CITSResponse", "Database read error: $error")
+                        }
+                    })
+
                 }
             },
             { error ->

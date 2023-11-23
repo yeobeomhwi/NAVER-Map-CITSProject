@@ -31,5 +31,5 @@
         android:id="@+id/nav_slideshow"
         android:name="com.example.cits_project.ui.UlsanView.UlsanFragment"
         android:label="@string/UlsanView"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/fragment_ulsan" />
 </navigation>

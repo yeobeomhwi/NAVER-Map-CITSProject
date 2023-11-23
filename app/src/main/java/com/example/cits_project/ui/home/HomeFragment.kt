@@ -52,8 +52,8 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
     private var markers = emptyList<Marker>()
 
     companion object {
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
-        private val PERMISSIONS = arrayOf(
+        const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+        val PERMISSIONS = arrayOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
         )

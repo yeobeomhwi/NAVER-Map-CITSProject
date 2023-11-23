@@ -1,4 +1,4 @@
-package com.example.cits_project.ui.UlsanView
+/* package com.example.cits_project.ui.UlsanView
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -24,32 +24,32 @@ import com.naver.maps.map.widget.ZoomControlView
 
 class UlsanFragment : Fragment() {
 
-    private var _binding: FragmentUlsanBinding? = null
-    private val locationToFirebase = Location_to_Firebase()
+private var _binding: FragmentUlsanBinding? = null
+private val locationToFirebase = Location_to_Firebase()
 
-    private val binding get() = _binding!!
+private val binding get() = _binding!!
 
-    private lateinit var locationSource: FusedLocationSource
-    private lateinit var naverMap: NaverMap
-    private lateinit var infoWindow: InfoWindow
+private lateinit var locationSource: FusedLocationSource
+private lateinit var naverMap: NaverMap
+private lateinit var infoWindow: InfoWindow
 
-    private var markers = emptyList<Marker>()
+private var markers = emptyList<Marker>()
 
-    companion object {
+        companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1000
         val PERMISSIONS = arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
         )
-    }
+        }
 
 
-    // Fragment 뷰를 생성할 때 호출되는 함수
-    override fun onCreateView(
+        // Fragment 뷰를 생성할 때 호출되는 함수
+        override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+        ): View {
 
         // View Binding 초기화
         _binding = FragmentUlsanBinding.inflate(inflater, container, false)
@@ -60,13 +60,15 @@ class UlsanFragment : Fragment() {
 
         // 뷰 반환
         return root
-        Log.d("return3333","$root")
-    }
+        }
 
 
-    // Fragment 뷰가 소멸될 때 호출되는 함수
-    override fun onDestroyView() {
+        // Fragment 뷰가 소멸될 때 호출되는 함수
+        override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-}
+        }
+        }
+
+
+ */
