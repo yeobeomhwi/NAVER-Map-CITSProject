@@ -51,6 +51,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
 
     private var markers = emptyList<Marker>()
 
+
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1000
         val PERMISSIONS = arrayOf(
@@ -116,10 +117,7 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
         return root
     }
 
-    // 검색을 수행하는 함수
-    //...
 
-    // 검색을 수행하는 함수
     private fun performSearch(query: String) {
         // Retrofit을 사용하여 검색 API 호출
         SearchRepository.getSearchPoint(query).enqueue(object : Callback<SearchResult> {

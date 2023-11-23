@@ -17,10 +17,12 @@ class Traffic_Light_Markes {
         database = Firebase.database.reference
         val dataRef = database.child("")
 
-        // lttd의 값을 가져오기 위한 참조
-        val lttdRef = dataRef.child("Location-info").child("base").child("header").child("totalCnt")
+        for (i in 0 until 1140) {
+            // 위도,경도 값을 가져오기 위한 참조
+            val LocationRef = dataRef.child("Ulsan").child("Location-info").child(i.toString())
 
+
+        }
     }
-
 }
 

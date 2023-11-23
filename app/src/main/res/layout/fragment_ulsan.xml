@@ -6,27 +6,27 @@
     android:layout_height="match_parent"
     tools:context=".ui.UlsanView.UlsanFragment">
 
-<!--    <androidx.fragment.app.FragmentContainerView-->
-<!--        android:id="@+id/nmap"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:name="com.naver.maps.map.MapFragment" />-->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nmap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.naver.maps.map.MapFragment" />
 
-<!--    <ImageButton-->
-<!--        android:id="@+id/buttonPanel"-->
-<!--        android:layout_width="40dp"-->
-<!--        android:layout_height="40dp"-->
-<!--        android:background="@color/black"-->
-<!--        android:layout_margin="20dp"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintRight_toRightOf="parent"/>-->
+    <ImageButton
+        android:id="@+id/buttonPanel"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@color/black"
+        android:layout_margin="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
 
-<!--    <com.naver.maps.map.widget.ZoomControlView-->
-<!--        android:id="@+id/zoom"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_margin="17dp"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/buttonPanel"-->
-<!--        app:layout_constraintRight_toRightOf="parent"-->
-<!--        />-->
+    <com.naver.maps.map.widget.ZoomControlView
+        android:id="@+id/zoom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="17dp"
+        app:layout_constraintBottom_toTopOf="@id/buttonPanel"
+        app:layout_constraintRight_toRightOf="parent"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

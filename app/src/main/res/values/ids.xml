@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="search_history" type="id" />
+    <item name="nmap" type="id" />
+    <item name="zoom" type="id" />
 </resources>
