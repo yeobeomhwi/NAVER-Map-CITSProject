@@ -183,13 +183,15 @@ class UlsanFragment : Fragment(), OnMapReadyCallback {
 
     private fun fetchData(naverMap: NaverMap, currentLttd: Double, currentLgtd: Double) {
         for (i in 0 until 1410) {
-            val ulsanLocationInfoRef = database.child("Ulsan").child("Location-info").child(i.toString())
+            val ulsanLocationInfoRef = database.child("Ulsan").child("Location-info").child(i.toString()).child("integBody").child("items").child("0")
             ulsanLocationInfoRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
 
                     // 데이터를 가져와서 타입에 맞게 변환
                     val lttd = snapshot.child("lttd").getValue(Double::class.java)
                     val lgtd = snapshot.child("lgtd").getValue(Double::class.java)
+                    val link_id = snapshot.child("link_id").getValue(String::class.java)
+                    val ofer_type = snapshot.child("ofer_type").getValue()
 
                     // 3km 이내에 있는 데이터를 가져옴
                     if (lttd != null && lgtd != null &&
@@ -197,9 +199,11 @@ class UlsanFragment : Fragment(), OnMapReadyCallback {
                     ) {
                         Marker(LatLng(lttd, lgtd)).apply {
                             map = naverMap
+                            captionText ="$link_id = $lttd,$lgtd  === $ofer_type"
                             // 마커 속성을 사용자 정의하거나 여기에 추가 데이터를 추가할 수 있습니다.
                         }
                     }
+
                 }
 
                 override fun onCancelled(error: DatabaseError) {
