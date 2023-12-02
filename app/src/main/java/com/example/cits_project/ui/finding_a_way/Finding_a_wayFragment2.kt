@@ -9,13 +9,11 @@ import android.location.Address
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.cits_project.R
 import com.example.cits_project.databinding.FragmentFindingAWay2Binding
@@ -42,6 +40,28 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import android.location.Location
+import android.util.Log
+import android.widget.Toast
+import retrofit2.http.POST
+import retrofit2.http.Query
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
+
+
+data class LatLngResponse(
+    val x:String? = null,
+    val y:String? = null,
+    val traffic:String? = null
+    // 기타 필요한 필드
+)
+
+interface ApiService {
+    @POST("/get_lat_lng")
+    fun getLatLng(
+        @Query("x") x: Double,
+        @Query("y") y: Double
+    ): Call<LatLngResponse> // 네트워크 요청의 반환 타입을 명시해줍니다.
+}
 
 
 class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
@@ -308,6 +328,52 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
             val endLatLng = "도착지 좌표: ${endLocation.latitude}, ${endLocation.longitude}"
             println(startLatLng)
             println(endLatLng)
+
+            // 출발지 신호등 확인 API
+            val retrofit = Retrofit.Builder()
+                .baseUrl("http://172.30.1.12:6000/") // 기본 URL 설정
+                .client(
+                    OkHttpClient.Builder()
+                        .connectTimeout(30, TimeUnit.SECONDS) // 연결 대기 시간 조정
+                        .readTimeout(30, TimeUnit.SECONDS) // 읽기 대기 시간 조정
+                        .writeTimeout(30, TimeUnit.SECONDS) // 쓰기 대기 시간 조정
+                        .build()
+                )
+                .addConverterFactory(GsonConverterFactory.create()) // Gson 컨버터 팩토리 추가
+                .build()
+
+            val apiService = retrofit.create(ApiService::class.java)
+            val call = apiService.getLatLng(startLocation.latitude, startLocation.longitude)
+            call.enqueue(object : retrofit2.Callback<LatLngResponse> {
+                override fun onResponse(
+                    call: Call<LatLngResponse>,
+                    response: retrofit2.Response<LatLngResponse>
+                ) {
+                    if(response.isSuccessful){
+                        val data = response.body()
+                        data?.let {
+                            val xValue = it.x ?: "N/A"
+                            val yValue = it.y ?: "N/A"
+                            val trafficValue = it.traffic ?: "N/A"
+
+                            val logMessage = "x=$xValue, y=$yValue, traffic=$trafficValue"
+                            Log.d("DATA", logMessage)
+                            val traffic_Location = LatLng(xValue.toDouble(), yValue.toDouble())
+                            val traffic_Marker = createMarker(traffic_Location, trafficValue.toString(), MarkerIcons.BLACK, Color.GREEN)
+                            traffic_Marker.map = naverMap
+                        }
+                    }
+                    Log.d("log", response.toString())
+                    Log.d("log", response.body().toString())
+
+
+                }
+
+                override fun onFailure(call: Call<LatLngResponse>, t: Throwable) {
+                    Log.e("Error", "Error : ${t.message}")
+                }
+            })
+
 
             // 데이터를 다른 프래그먼트로 전달하기 위한 Bundle을 생성합니다.
             val bundle = Bundle()
