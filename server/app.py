@@ -35,16 +35,19 @@ def get_traffic(itstId) :
 def get_lat_lot():
     conn = sqlite3.connect('map.db')
     cursor = conn.cursor()
-    x = request.args.get('x')  # x에 해당하는 값 얻기
-    y = request.args.get('y') 
+    x = request.args.get('x')[:7]  # x에 해당하는 값 얻기
+    y = request.args.get('y')[:8]
     print(x, y)
     cursor.execute("SELECT itstId, Lat, Lot FROM my_table WHERE Lat LIKE ? OR Lot LIKE ?", ('%' + x + '%', '%' + y + '%'))
     result = cursor.fetchall()
     print(result)
-    x = result[0][1]
-    y = result[0][2]
-    itstId = result[0][0]
-    traffic = get_traffic(itstId)[0]
+    x = result[-1][1]
+    y = result[-1][2]
+    itstId = result[-1][0]
+    try :
+        traffic = get_traffic(itstId)[0]
+    except :
+        traffic = 0
     print(x, y, traffic)
     
     response_data = {
