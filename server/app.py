@@ -28,26 +28,37 @@ def get_traffic(itstId) :
         return_data = list(set(return_data))
     except :
         return_data = None
+    print(return_data)
     return return_data
 
-@app.route('/get_lat_lot', methods=['POST'])
+@app.route('/get_lat_lng', methods=['POST'])
 def get_lat_lot():
     conn = sqlite3.connect('map.db')
     cursor = conn.cursor()
-    data = request.get_json()
-    x = str(data['x'])
-    y = str(data['y'])
+    x = request.args.get('x')  # x에 해당하는 값 얻기
+    y = request.args.get('y') 
+    print(x, y)
     cursor.execute("SELECT itstId, Lat, Lot FROM my_table WHERE Lat LIKE ? OR Lot LIKE ?", ('%' + x + '%', '%' + y + '%'))
     result = cursor.fetchall()
-    datas = []
-    for i in result :
-        itstId = i[0]
-        Lat = i[1]
-        Lot = i[2]
-        traffic_data = get_traffic(itstId)
-        datas.append([Lat, Lot, traffic_data])
-    return jsonify(datas)
+    print(result)
+    x = result[0][1]
+    y = result[0][2]
+    itstId = result[0][0]
+    traffic = get_traffic(itstId)[0]
+    print(x, y, traffic)
+    
+    response_data = {
+        'x': str(x),
+        'y': str(y),
+        'traffic': str(traffic)
+    }
+    
+    return jsonify(response_data)
+    # return jsonify({
+    #     'x' : str(x)
+    # })
+    # return str(x), str(y), str(traffic)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=6000)
