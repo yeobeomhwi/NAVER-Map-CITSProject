@@ -269,6 +269,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
             minZoom = 10.0
             maxZoom = 20.0
 
+            // 현재 위치 아이콘을 보이게 설정
+            val locationOverlay = locationOverlay
+            locationOverlay.isVisible = true
             // UI 설정
             uiSettings.apply {
                 isLocationButtonEnabled = true  // 현재 위치 버튼 활성화
@@ -277,10 +280,6 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 isCompassEnabled = false  // 나침반 비활성화
                 isZoomControlEnabled = true  // 줌 컨트롤바 활성화
             }
-
-            // 현재 위치 아이콘을 보이게 설정
-            val locationOverlay = locationOverlay
-            locationOverlay.isVisible = true
         }
     }
 
