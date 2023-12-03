@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "892707881004",
+    "firebase_url": "https://wlaks-24d33-default-rtdb.firebaseio.com",
+    "project_id": "wlaks-24d33",
+    "storage_bucket": "wlaks-24d33.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:892707881004:android:493634b5d3be227349d189",
+        "android_client_info": {
+          "package_name": "com.example.cits_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKOL6j1-Bv4R-n4lM-qr7lazY2OzeTRwM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
