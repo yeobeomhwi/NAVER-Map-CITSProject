@@ -51,7 +51,8 @@ import java.util.concurrent.TimeUnit
 data class LatLngResponse(
     val x:String? = null,
     val y:String? = null,
-    val traffic:String? = null
+    val traffic:String? = null,
+    val light:String? = null
     // 기타 필요한 필드
 )
 
@@ -330,49 +331,49 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
             println(endLatLng)
 
             // 출발지 신호등 확인 API
-            val retrofit = Retrofit.Builder()
-                .baseUrl("http://172.30.1.12:6000/") // 기본 URL 설정
-                .client(
-                    OkHttpClient.Builder()
-                        .connectTimeout(30, TimeUnit.SECONDS) // 연결 대기 시간 조정
-                        .readTimeout(30, TimeUnit.SECONDS) // 읽기 대기 시간 조정
-                        .writeTimeout(30, TimeUnit.SECONDS) // 쓰기 대기 시간 조정
-                        .build()
-                )
-                .addConverterFactory(GsonConverterFactory.create()) // Gson 컨버터 팩토리 추가
-                .build()
-
-            val apiService = retrofit.create(ApiService::class.java)
-            val call = apiService.getLatLng(startLocation.latitude, startLocation.longitude)
-            call.enqueue(object : retrofit2.Callback<LatLngResponse> {
-                override fun onResponse(
-                    call: Call<LatLngResponse>,
-                    response: retrofit2.Response<LatLngResponse>
-                ) {
-                    if(response.isSuccessful){
-                        val data = response.body()
-                        data?.let {
-                            val xValue = it.x ?: "N/A"
-                            val yValue = it.y ?: "N/A"
-                            val trafficValue = it.traffic ?: "N/A"
-
-                            val logMessage = "x=$xValue, y=$yValue, traffic=$trafficValue"
-                            Log.d("DATA", logMessage)
-                            val traffic_Location = LatLng(xValue.toDouble(), yValue.toDouble())
-                            val traffic_Marker = createMarker(traffic_Location, trafficValue.toString(), MarkerIcons.BLACK, Color.GREEN)
-                            traffic_Marker.map = naverMap
-                        }
-                    }
-                    Log.d("log", response.toString())
-                    Log.d("log", response.body().toString())
-
-
-                }
-
-                override fun onFailure(call: Call<LatLngResponse>, t: Throwable) {
-                    Log.e("Error", "Error : ${t.message}")
-                }
-            })
+//            val retrofit = Retrofit.Builder()
+//                .baseUrl("http://10.50.21.26:6000/") // 기본 URL 설정
+//                .client(
+//                    OkHttpClient.Builder()
+//                        .connectTimeout(30, TimeUnit.SECONDS) // 연결 대기 시간 조정
+//                        .readTimeout(30, TimeUnit.SECONDS) // 읽기 대기 시간 조정
+//                        .writeTimeout(30, TimeUnit.SECONDS) // 쓰기 대기 시간 조정
+//                        .build()
+//                )
+//                .addConverterFactory(GsonConverterFactory.create()) // Gson 컨버터 팩토리 추가
+//                .build()
+//
+//            val apiService = retrofit.create(ApiService::class.java)
+//            val call = apiService.getLatLng(startLocation.latitude, startLocation.longitude)
+//            call.enqueue(object : retrofit2.Callback<LatLngResponse> {
+//                override fun onResponse(
+//                    call: Call<LatLngResponse>,
+//                    response: retrofit2.Response<LatLngResponse>
+//                ) {
+//                    if(response.isSuccessful){
+//                        val data = response.body()
+//                        data?.let {
+//                            val xValue = it.x ?: "N/A"
+//                            val yValue = it.y ?: "N/A"
+//                            val trafficValue = it.traffic ?: "N/A"
+//
+//                            val logMessage = "x=$xValue, y=$yValue, traffic=$trafficValue"
+//                            Log.d("DATA", logMessage)
+//                            val traffic_Location = LatLng(xValue.toDouble(), yValue.toDouble())
+//                            val traffic_Marker = createMarker(traffic_Location, trafficValue.toString(), MarkerIcons.BLACK, Color.GREEN)
+//                            traffic_Marker.map = naverMap
+//                        }
+//                    }
+//                    Log.d("log", response.toString())
+//                    Log.d("log", response.body().toString())
+//
+//
+//                }
+//
+//                override fun onFailure(call: Call<LatLngResponse>, t: Throwable) {
+//                    Log.e("Error", "Error : ${t.message}")
+//                }
+//            })
 
 
             // 데이터를 다른 프래그먼트로 전달하기 위한 Bundle을 생성합니다.
@@ -389,6 +390,83 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
                 "traoptimal" //실시간 최적은 되는데 실시간 빠른길이 안댐
             )
 
+            // 경로 순회 후 불러와진 좌표 확인
+            fun printPathCoordinates(path: List<List<Double>>) {
+                for (coordinate in path) {
+                    println("Latitude: ${coordinate[0]}, Longitude: ${coordinate[1]}")
+                    // 출발지 신호등 확인 API
+                    val retrofit = Retrofit.Builder()
+                        .baseUrl("http://10.50.21.26:6000/") // 기본 URL 설정
+                        .client(
+                            OkHttpClient.Builder()
+                                .connectTimeout(30, TimeUnit.SECONDS) // 연결 대기 시간 조정
+                                .readTimeout(30, TimeUnit.SECONDS) // 읽기 대기 시간 조정
+                                .writeTimeout(30, TimeUnit.SECONDS) // 쓰기 대기 시간 조정
+                                .build()
+                        )
+                        .addConverterFactory(GsonConverterFactory.create()) // Gson 컨버터 팩토리 추가
+                        .build()
+
+                    val apiService = retrofit.create(ApiService::class.java)
+                    val call = apiService.getLatLng(coordinate[1], coordinate[0])
+                    call.enqueue(object : retrofit2.Callback<LatLngResponse> {
+                        override fun onResponse(
+                            call: Call<LatLngResponse>,
+                            response: retrofit2.Response<LatLngResponse>
+                        ) {
+                            if(response.isSuccessful){
+                                val data = response.body()
+                                data?.let {
+                                    val xValue = it.x ?: "N/A"
+                                    val yValue = it.y ?: "N/A"
+                                    val trafficValue = it.traffic ?: "N/A"
+                                    val trafficLight = it.light ?: "N/A"
+
+                                    val logMessage = "x=$xValue, y=$yValue, traffic=$trafficValue, light=$trafficLight"
+                                    Log.d("DATA", logMessage)
+                                    val traffic_Location = LatLng(xValue.toDouble(), yValue.toDouble())
+                                    if(trafficLight.toString().equals("RED")){
+                                        val traffic_Marker = createMarker(traffic_Location, trafficValue, MarkerIcons.BLACK, Color.RED)
+                                        traffic_Marker.map = naverMap
+                                    }else{
+                                        val traffic_Marker = createMarker(traffic_Location, trafficValue, MarkerIcons.BLACK, Color.GREEN)
+                                        traffic_Marker.map = naverMap
+                                    }
+
+
+                                }
+                            }
+                            Log.d("log", response.toString())
+                            Log.d("log", response.body().toString())
+
+
+                        }
+
+                        override fun onFailure(call: Call<LatLngResponse>, t: Throwable) {
+                            Log.e("Error", "Error : ${t.message}")
+                        }
+                    })
+                }
+            }
+
+            //
+
+
+            fun extractCoordinates(data: String) {
+                val startIndex = data.indexOf("[[") + 2
+                val endIndex = data.indexOf("]]")
+                val coordinatesData = data.substring(startIndex, endIndex)
+
+                val coordinatesList = coordinatesData.split("], [")
+                    .map { it.replace("[", "").replace("]", "") }
+                    .map { it.split(", ") }
+                    .map { it.map { coord -> coord.toDouble() } }
+
+                printPathCoordinates(coordinatesList)
+            }
+
+
+
             callgetPath.enqueue(object : Callback<ResultPath> {
                 override fun onResponse(
                     call: Call<ResultPath>,
@@ -399,7 +477,7 @@ class Finding_a_wayFragment2 : Fragment(), OnMapReadyCallback {
                         // 로그로 응답 내용을 출력합니다.
                         Log.d("ServerResponse1", "Response: ${resultPath?.toString()}")
                         Log.d("ServerResponse1", "Response: ${response?.isSuccessful()}")
-
+                        extractCoordinates(resultPath.toString())
                         // 1. 응답에서 경로 정보를 추출합니다.
                         val traoptimal = resultPath?.route?.traoptimal
 
