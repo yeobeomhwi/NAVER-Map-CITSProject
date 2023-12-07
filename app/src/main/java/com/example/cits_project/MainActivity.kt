@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         // 앱 바 구성 초기화
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_finding_a_way, R.id.nav_slideshow, R.id.nav_subway
+                R.id.nav_home, R.id.nav_finding_a_way, R.id.nav_slideshow, R.id.nav_subway, R.id.nav_notice
             ), drawerLayout
         )
 

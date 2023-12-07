@@ -13,5 +13,6 @@
 
     <string name="My_location">My location</string>
     <string name="Finding_a_way">Finding a way</string>
-    <string name="Subway">Subway</string>
+    <string name="Subway">지하철</string>
+    <string name="Notice">알림</string>
 </resources>
