@@ -3,4 +3,5 @@
     <item name="search_history" type="id" />
     <item name="nmap" type="id" />
     <item name="zoom" type="id" />
+    <item name="mapView" type="id"/>
 </resources>

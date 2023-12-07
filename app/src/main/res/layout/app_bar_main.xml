@@ -20,37 +20,39 @@
 
             <TextView
                 android:id="@+id/temperatureTextView"
-                android:layout_width="35dp"
-                android:layout_height="28dp"
+                android:layout_width="45dp"
+                android:layout_height="match_parent"
                 android:layout_gravity="right|end"
-                android:text="10"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:gravity="center"
-                android:textStyle="bold"
                 android:layout_margin="15dp"
+                android:gravity="center"
+                android:text="Error"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold"
                 app:layout_anchor="@+id/appBarLayout"
                 app:layout_anchorGravity="end|bottom" />
+
             <ImageView
                 android:id="@+id/weatherIconView"
-                android:layout_width="50dp"
+                android:layout_width="30dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="right|center"
-                android:scaleType="centerCrop"
+                android:scaleType="center"
                 app:layout_anchor="@+id/appBarLayout"
                 app:layout_anchorGravity="end|top" />
+
             <Button
                 android:id="@+id/themeButton"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="end"
-                android:text="Theme"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
                 android:gravity="center"
+                android:text="일반 지도"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 app:layout_anchor="@+id/appBarLayout"
-                app:layout_anchorGravity="end|bottom"/>
+                app:layout_anchorGravity="end|bottom" />
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>

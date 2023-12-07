@@ -100,5 +100,5 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.9.1")
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
-
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
 }

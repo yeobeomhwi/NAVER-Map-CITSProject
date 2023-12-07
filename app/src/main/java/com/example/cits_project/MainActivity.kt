@@ -1,31 +1,28 @@
 package com.example.cits_project
 
-import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import com.google.android.material.navigation.NavigationView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.cits_project.Weather.OpenWeatherMapService
 import com.example.cits_project.Weather.WeatherResponse
 import com.example.cits_project.databinding.ActivityMainBinding
+import com.google.android.material.navigation.NavigationView
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
-import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.overlay.Marker
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -72,7 +69,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         // 앱 바 구성 초기화
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_finding_a_way, R.id.nav_slideshow
+                R.id.nav_home, R.id.nav_finding_a_way, R.id.nav_slideshow, R.id.nav_subway
             ), drawerLayout
         )
 
@@ -160,8 +157,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             NaverMap.MapType.Hybrid -> NaverMap.MapType.Terrain
             NaverMap.MapType.Terrain -> NaverMap.MapType.Navi
             else -> NaverMap.MapType.Navi
+
         }
         naverMap.mapType = newMapType
+        // 테마에 따라 버튼 텍스트 변경
+        updateMapStyleButtonText(newMapType)
+    }
+    private fun updateMapStyleButtonText(mapType: NaverMap.MapType) {
+        val buttonText = when (mapType) {
+            NaverMap.MapType.Navi -> "일반 지도"
+            NaverMap.MapType.Basic -> "기본 지도"
+            NaverMap.MapType.Satellite -> "위성 지도"
+            NaverMap.MapType.Hybrid -> "겹침 지도"
+            NaverMap.MapType.Terrain -> "지형 지도"
+            else -> "일반 지도"
+        }
+
+        // 버튼 텍스트 업데이트
+        val themeButton = findViewById<Button>(R.id.themeButton)
+        themeButton.text = buttonText
     }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // 메뉴를 인플레이트하여 액션 바에 추가
