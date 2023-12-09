@@ -1,37 +1,50 @@
 package com.example.cits_project.ui.subway
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import com.example.cits_project.R
-import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.MapView
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.overlay.Marker
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import com.example.cits_project.databinding.FragmentSubwayBinding
 
 class SubwayFragment : Fragment() {
+    private var _binding: FragmentSubwayBinding? = null
+    private val binding get() = _binding!!
+    /*
     private lateinit var mapView: MapView
     private lateinit var naverMap: NaverMap
-
-    override fun onCreateView(
+    */   override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val rootView = inflater.inflate(R.layout.fragment_subway, container, false)
-        mapView = rootView.findViewById(R.id.nmap)
-        mapView.onCreate(savedInstanceState)
-        return rootView
-    }
+        _binding = FragmentSubwayBinding.inflate(inflater, container, false)
+        val root: View = binding.root
+        /* mapView = root.findViewById(R.id.nmap)
+         mapView.onCreate(savedInstanceState)*/
+        // Find the ImageButton by its ID
+        val subwayViewButton: ImageButton = root.findViewById(R.id.subwayView)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        // Set an OnClickListener for the ImageButton
+        subwayViewButton.setOnClickListener {
+            // Define the URL of the website
+            val websiteUrl = "https://smss.seoulmetro.co.kr/traininfo/traininfoUserView.do"
+
+            // Create an Intent to open a browser with the specified URL
+            val urlintent = Intent(Intent.ACTION_VIEW, Uri.parse(websiteUrl))
+
+            // Check if there's a browser app to handle the intent before starting it
+            if (urlintent.resolveActivity(requireActivity().packageManager) != null) {
+                startActivity(urlintent)
+            }
+        }
+        return root
+    }
+/*
+    override fun onViewCreated(view:View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mapView.getMapAsync { naverMap ->
             this.naverMap = naverMap
@@ -47,7 +60,6 @@ class SubwayFragment : Fragment() {
         // 서울시 지하철 역 정보 (예시)
         val subwayStations = listOf(
             SubwayStation("StationA", LatLng(37.123, 127.456)),
-            // ...
         )
 
         // 지하철 역 마커 표시
@@ -97,8 +109,13 @@ class SubwayFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         mapView.onDestroy()
-    }
+    }*/
+override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
+}
 }
 
+/*
 data class SubwayStation(val name: String, val latLng: LatLng)
-
+*/

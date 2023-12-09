@@ -32,4 +32,14 @@
         android:name="com.example.cits_project.ui.UlsanView.UlsanFragment"
         android:label="@string/UlsanView"
         tools:layout="@layout/fragment_ulsan" />
+    <fragment
+        android:id="@+id/nav_subway"
+        android:name="com.example.cits_project.ui.subway.SubwayFragment"
+        android:label="@string/Subway"
+        tools:layout="@layout/fragment_subway" />
+    <fragment
+        android:id="@+id/nav_notice"
+        android:name="com.example.cits_project.ui.notice.NoticeFragment"
+        android:label="@string/Notice"
+        tools:layout="@layout/fragment_notice" />
 </navigation>

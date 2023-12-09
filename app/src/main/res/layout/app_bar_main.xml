@@ -34,10 +34,12 @@
 
             <ImageView
                 android:id="@+id/weatherIconView"
-                android:layout_width="30dp"
+                android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="right|center"
                 android:scaleType="center"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
                 app:layout_anchor="@+id/appBarLayout"
                 app:layout_anchorGravity="end|top" />
 

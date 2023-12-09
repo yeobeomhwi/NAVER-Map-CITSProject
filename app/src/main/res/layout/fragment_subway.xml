@@ -6,9 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".ui.subway.SubwayFragment">
 
-    <androidx.fragment.app.FragmentContainerView
+<!--
+   <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nmap"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:name="com.naver.maps.map.MapFragment" />
+        -->
+    <ImageButton
+        android:id="@+id/subwayView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/img_subway"
+        android:contentDescription="Subway Information"
+        android:onClick="onSubwayViewButtonClick"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
